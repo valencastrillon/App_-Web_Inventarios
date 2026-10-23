@@ -1,6 +1,7 @@
 import express from 'express';
-import cors from 'cors';
 import dotenv from 'dotenv';
+import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 import { supabase } from './supabaseClient.js';
 
 dotenv.config();
@@ -8,29 +9,36 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// Middlewares esenciales
-app.use(cors());
+// Middleware para procesar JSON en las peticiones
 app.use(express.json());
 
-// Ruta de prueba (Healthcheck) y verificación de Supabase
-app.get('/api/healthcheck', async (req, res) => {
+// Endpoint de prueba / Healthcheck (con verificación de conexión a Supabase)
+app.get('/health', async (req, res) => {
   try {
-    // Intentamos consultar la tabla 'roles' para comprobar la conexión a la BD
     const { data, error } = await supabase.from('roles').select('*');
     
-    if (error) throw error;
+    if (error) {
+      return res.status(500).json({ 
+        status: 'Error', 
+        message: 'Error al conectar con Supabase', 
+        details: error.message 
+      });
+    }
 
     res.json({ 
       status: 'OK', 
-      message: 'El backend y la conexión con Supabase funcionan',
-      rolesEnBaseDeDatos: data 
+      message: 'Servidor y Supabase conectados correctamente', 
+      roles: data 
     });
-  } catch (error) {
-    res.status(500).json({ status: 'ERROR', message: error.message });
+  } catch (err) {
+    res.status(500).json({ status: 'Error', message: 'Error en el servidor', details: err.message });
   }
 });
 
-// Levantar el servidor
+// Registrar las rutas del Módulo 2 (Autenticación y Usuarios)
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en el puerto ${PORT}`);
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
