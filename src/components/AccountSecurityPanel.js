@@ -94,7 +94,6 @@ export function renderAccountSecurityPanel(state) {
             <div class="user-perm-name">
               ${escapeHtml(u.name)}
               <span class="badge ${u.enabled ? 'badge-success' : 'badge-danger'}">
-                <span class="badge-dot"></span>
                 ${u.enabled ? 'Habilitado' : 'Inhabilitado'}
               </span>
             </div>

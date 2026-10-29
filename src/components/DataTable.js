@@ -3,7 +3,6 @@
  */
 
 import { escapeHtml } from '../core/formatters.js';
-import { icon } from '../core/icons.js';
 
 /**
  * Renderiza una tabla de datos o un estado vacío cuando no hay registros.
@@ -27,7 +26,6 @@ export function renderDataTable({
 }) {
   if (!rows || rows.length === 0) {
     return `<div class="empty-state">
-      <div class="empty-icon">${icon('packageSearch', 22)}</div>
       <div class="empty-title">${escapeHtml(emptyTitle)}</div>
       <p class="empty-desc">${escapeHtml(emptyDescription)}</p>
       ${

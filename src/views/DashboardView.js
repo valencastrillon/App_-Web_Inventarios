@@ -11,21 +11,6 @@ import { escapeHtml, formatCurrency, formatNumber, stockStatus } from '../core/f
 import { icon } from '../core/icons.js';
 import { chartSeriesByBranch } from '../data/mockData.js';
 
-export function renderProductIcon(iconKey) {
-  const map = {
-    wrench: 'wrench',
-    cable: 'cable',
-    paint: 'paint',
-    headphones: 'headphones',
-    shirt: 'shirt',
-    spray: 'spray',
-    coffee: 'coffee',
-    lamp: 'lamp',
-    disc: 'disc',
-  };
-  return icon(map[iconKey] || 'package', 16);
-}
-
 /**
  * Renderiza la vista de Dashboard con KPIs, comparativa de sedes, gráfico de flujo y tabla de alertas.
  * @param {object} state Estado global.
@@ -91,7 +76,6 @@ export function renderDashboardView(state) {
       key: 'product',
       header: 'Producto',
       render: (p) => `<div class="product-cell">
-        <div class="product-thumb">${renderProductIcon(p.icon)}</div>
         <div>
           <div class="product-name">${escapeHtml(p.name)}</div>
           <div class="product-sub">${escapeHtml(p.subtitle)} · ${escapeHtml(p.location)}</div>
@@ -106,10 +90,7 @@ export function renderDashboardView(state) {
     {
       key: 'branch',
       header: 'Sede / Sucursal',
-      render: (p) => `<span class="branch-table-tag">
-        ${icon('building2', 12)}
-        ${escapeHtml(p.branch)}
-      </span>`,
+      render: (p) => `<span class="branch-table-tag">${escapeHtml(p.branch)}</span>`,
     },
     {
       key: 'category',
@@ -156,7 +137,7 @@ export function renderDashboardView(state) {
       footnote: isAllBranches
         ? 'existencias sumadas en toda la empresa'
         : `unidades alojadas en ${branchLocation}`,
-      iconHtml: icon('package', 18),
+      iconHtml: '',
       tone: 'blue',
     })}
     ${renderKpiCard({
@@ -165,7 +146,7 @@ export function renderDashboardView(state) {
       delta: `${outOfStockCount} sin stock`,
       deltaTone: lowStockItems.length > 0 ? 'warn' : 'up',
       footnote: isAllBranches ? 'en todas las sucursales' : `debajo del mínimo en ${branchLocation}`,
-      iconHtml: icon('triangleAlert', 18),
+      iconHtml: '',
       tone: 'amber',
     })}
     ${renderKpiCard({
@@ -174,7 +155,7 @@ export function renderDashboardView(state) {
       delta: isAllBranches ? '100% global' : `${activeBranchInfo.occupancy}% ocup.`,
       deltaTone: 'up',
       footnote: 'costo promedio ponderado',
-      iconHtml: icon('circleDollarSign', 18),
+      iconHtml: '',
       tone: 'green',
     })}
     ${renderKpiCard({
@@ -183,7 +164,7 @@ export function renderDashboardView(state) {
       delta: isAllBranches ? '3 plantas' : branchLocation,
       deltaTone: 'up',
       footnote: 'ingresos, egresos y desarmes',
-      iconHtml: icon('activity', 18),
+      iconHtml: '',
       tone: 'blue',
     })}
   </div>`;
@@ -195,16 +176,12 @@ export function renderDashboardView(state) {
             (b) => `<article class="branch-overview-card">
               <div class="branch-overview-head">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                  <div class="kpi-icon tone-blue" style="width: 34px; height: 34px;">
-                    ${icon('building2', 17)}
-                  </div>
                   <div>
                     <div class="branch-overview-title">${escapeHtml(b.name)}</div>
                     <div class="branch-overview-city">${escapeHtml(b.city)} · ${escapeHtml(b.manager)}</div>
                   </div>
                 </div>
                 <span class="badge ${b.status === 'Operativa' ? 'badge-success' : 'badge-warning'}">
-                  <span class="badge-dot"></span>
                   ${escapeHtml(b.status)}
                 </span>
               </div>
@@ -228,7 +205,7 @@ export function renderDashboardView(state) {
 
               <div class="branch-overview-foot">
                 <span style="font-size: 11.5px; color: var(--text-tertiary);">
-                  ${icon('mapPin', 12)} ${escapeHtml(b.address)}
+                  ${escapeHtml(b.address)}
                 </span>
                 <button
                   type="button"
@@ -236,7 +213,7 @@ export function renderDashboardView(state) {
                   data-action="select-branch"
                   data-branch="${escapeHtml(b.name)}"
                 >
-                  Inspeccionar sede ${icon('arrowRight', 13)}
+                  Inspeccionar sede
                 </button>
               </div>
             </article>`
@@ -245,7 +222,6 @@ export function renderDashboardView(state) {
       </div>`
     : `<div class="branch-single-banner">
         <div style="display: flex; align-items: center; gap: 12px;">
-          <div class="kpi-icon tone-blue">${icon('building2', 18)}</div>
           <div>
             <div style="font-weight: 700; font-size: 14px; color: var(--text-primary);">
               Estás visualizando únicamente: ${escapeHtml(activeBranchInfo.name)} (${escapeHtml(
@@ -267,7 +243,7 @@ export function renderDashboardView(state) {
           data-action="select-branch"
           data-branch="Todas las sedes"
         >
-          ${icon('rotateCcw', 13)} Volver al resumen de todas las sedes
+          Volver al resumen de todas las sedes
         </button>
       </div>`;
 
@@ -314,7 +290,6 @@ export function renderDashboardView(state) {
           class="btn btn-primary"
           data-action="open-movement-drawer"
         >
-          ${icon('arrowUpRight', 16)}
           <span>Registrar movimiento</span>
         </button>
       </div>
@@ -323,7 +298,6 @@ export function renderDashboardView(state) {
     <!-- Barra de Filtro de Sedes / Sucursales -->
     <section class="branch-switcher-bar" aria-label="Filtro de visualización por sucursal">
       <div class="branch-switcher-label">
-        ${icon('building2', 16)}
         <div>
           <strong>Visualización por Sede / Sucursal</strong>
           <span>Alterná entre el consolidado general de la empresa o el detalle individual de cada planta</span>
@@ -457,7 +431,6 @@ export function renderDashboardView(state) {
                       m.type === 'Ingreso' ? 'var(--success-text)' : 'var(--text-secondary)'
                     };"
                   >
-                    ${m.type === 'Ingreso' ? icon('arrowDownLeft', 16) : icon('arrowUpRight', 16)}
                   </div>
                   <div class="feed-content">
                     <div class="feed-title">
@@ -509,7 +482,6 @@ export function renderDashboardView(state) {
 
       <div class="toolbar">
         <div class="toolbar-left">
-          ${icon('filter', 15)}
           <select
             class="select"
             aria-label="Filtrar por categoría"

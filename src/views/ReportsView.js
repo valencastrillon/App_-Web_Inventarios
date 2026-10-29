@@ -51,7 +51,6 @@ export function renderReportsView(state) {
       <div class="kpi-card">
         <div class="kpi-top">
           <span class="kpi-label">Capital inmovilizado (a costo)</span>
-          <div class="kpi-icon tone-blue">${icon('trendingUp', 18)}</div>
         </div>
         <div class="kpi-value tabular">${formatCurrency(totalCost)}</div>
         <div class="kpi-foot">100% auditado sobre ${products.length} SKUs</div>
@@ -60,7 +59,6 @@ export function renderReportsView(state) {
       <div class="kpi-card">
         <div class="kpi-top">
           <span class="kpi-label">Valor de realización (lista)</span>
-          <div class="kpi-icon tone-green">${icon('trendingUp', 18)}</div>
         </div>
         <div class="kpi-value tabular">${formatCurrency(totalRetail)}</div>
         <div class="kpi-foot">Margen bruto potencial: ${formatCurrency(potentialMargin)}</div>
@@ -69,7 +67,6 @@ export function renderReportsView(state) {
       <div class="kpi-card">
         <div class="kpi-top">
           <span class="kpi-label">Ítems en punto de pedido</span>
-          <div class="kpi-icon tone-amber">${icon('triangleAlert', 18)}</div>
         </div>
         <div class="kpi-value tabular">${critical.length} SKUs</div>
         <div class="kpi-foot">Requieren emisión de Orden de Compra</div>

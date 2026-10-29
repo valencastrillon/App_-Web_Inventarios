@@ -24,7 +24,6 @@ export function openNewProductDrawer() {
       price: '19800',
       location: 'Depósito Central · Pasillo A-1',
       branch: state.branchLocation === 'Todas las sedes' ? 'CD Norte' : state.branchLocation,
-      icon: 'wrench',
     },
     drawer: 'product',
   });
@@ -53,7 +52,6 @@ export function openEditProductDrawer(productId) {
       price: String(product.price),
       location: product.location,
       branch: product.branch,
-      icon: product.icon,
     },
     drawer: 'product',
   });
@@ -84,7 +82,6 @@ export function saveProductDraft() {
     location: draft.location.trim() || 'Depósito Central',
     branch: draft.branch || 'CD Norte',
     updatedAt: 'ahora mismo',
-    icon: draft.icon,
   };
 
   const nextProducts = state.editingProduct

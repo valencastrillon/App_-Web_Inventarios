@@ -466,9 +466,6 @@ function renderBranchesDrawer(state) {
               return `<div class="branch-modal-card ${isSelected ? 'selected' : ''}">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
                   <div style="display: flex; align-items: center; gap: 10px;">
-                    <div class="kpi-icon tone-blue" style="width: 36px; height: 36px;">
-                      ${icon('building2', 18)}
-                    </div>
                     <div>
                       <div style="font-weight: 700; font-size: 14px; color: var(--text-primary);">
                         ${escapeHtml(b.name)}
@@ -479,17 +476,16 @@ function renderBranchesDrawer(state) {
                     </div>
                   </div>
                   <span class="badge ${b.status === 'Operativa' ? 'badge-success' : 'badge-warning'}">
-                    <span class="badge-dot"></span>
                     ${escapeHtml(b.status)}
                   </span>
                 </div>
 
                 <div style="font-size: 12px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 5px; margin: 10px 0;">
                   <div style="display: flex; align-items: center; gap: 6px;">
-                    ${icon('mapPin', 13)} ${escapeHtml(b.address)}
+                    ${escapeHtml(b.address)}
                   </div>
                   <div style="display: flex; align-items: center; gap: 6px;">
-                    ${icon('userCheck', 13)} Responsable: <strong>${escapeHtml(b.manager)}</strong> · ${escapeHtml(b.phone)}
+                    Responsable: <strong>${escapeHtml(b.manager)}</strong> · ${escapeHtml(b.phone)}
                   </div>
                 </div>
 
@@ -503,7 +499,7 @@ function renderBranchesDrawer(state) {
                     data-action="select-branch-and-close"
                     data-branch="${escapeHtml(b.name)}"
                   >
-                    ${isSelected ? `${icon('checkCircle2', 14)} Sede activa` : 'Cambiar a esta sede'}
+                    ${isSelected ? 'Sede activa' : 'Cambiar a esta sede'}
                   </button>
                 </div>
               </div>`;

@@ -111,6 +111,7 @@
   place-items: center;
   border-radius: 9px;
 }
+.kpi-icon:empty { display: none; }
 
 .icon-blue {
   color: #2563eb;

@@ -196,7 +196,6 @@ const state = {
     price: '0',
     location: 'Depósito Central · Pasillo A-1',
     branch: 'CD Norte',
-    icon: 'wrench',
   },
   movementDraft: {
     type: 'Ingreso',

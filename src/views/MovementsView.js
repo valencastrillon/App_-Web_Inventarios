@@ -120,7 +120,6 @@ export function renderMovementsView(state) {
       <div class="kpi-card">
         <div class="kpi-top">
           <span class="kpi-label">Unidades ingresadas (mes)</span>
-          <div class="kpi-icon tone-green">${icon('arrowDownLeft', 18)}</div>
         </div>
         <div class="kpi-value tabular">+${formatNumber(totalIn)} u.</div>
         <div class="kpi-foot">Recepciones verificadas por calidad</div>
@@ -129,7 +128,6 @@ export function renderMovementsView(state) {
       <div class="kpi-card">
         <div class="kpi-top">
           <span class="kpi-label">Unidades despachadas (mes)</span>
-          <div class="kpi-icon tone-amber">${icon('arrowUpRight', 18)}</div>
         </div>
         <div class="kpi-value tabular">-${formatNumber(totalOut)} u.</div>
         <div class="kpi-foot">Órdenes de salida y entregas</div>
@@ -138,7 +136,6 @@ export function renderMovementsView(state) {
       <div class="kpi-card">
         <div class="kpi-top">
           <span class="kpi-label">Transferencias entre sedes</span>
-          <div class="kpi-icon tone-blue">${icon('rotateCcw', 18)}</div>
         </div>
         <div class="kpi-value tabular">
           ${movements.filter((m) => m.type === 'Transferencia').length} envíos

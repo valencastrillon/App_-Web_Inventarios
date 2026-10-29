@@ -93,7 +93,6 @@ export function parseCsvProducts(text, defaultBranch = 'CD Norte') {
       price: Number(cols[8]) || 0,
       location: cols[9] || 'Depósito Central · Pasillo A-1',
       branch: cols[10] || defaultBranch,
-      icon: 'wrench',
     };
   });
 }

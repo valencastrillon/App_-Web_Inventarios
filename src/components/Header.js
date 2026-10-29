@@ -52,7 +52,6 @@ export function renderHeader(state) {
                 data-action="select-branch"
                 data-branch="${escapeHtml(b.name)}"
               >
-                <div class="branch-item-icon">${icon('building2', 15)}</div>
                 <div class="branch-item-info">
                   <div class="branch-item-name">
                     ${escapeHtml(b.name)}
@@ -62,7 +61,7 @@ export function renderHeader(state) {
                 </div>
                 <div class="branch-item-right">
                   <span class="branch-occ-pill">${b.occupancy}% ocup.</span>
-                  ${active ? icon('check', 15) : ''}
+                  ${active ? 'Sede activa' : ''}
                 </div>
               </button>`;
             })
@@ -75,7 +74,6 @@ export function renderHeader(state) {
             style="width: 100%; justify-content: center;"
             data-action="open-branches-drawer"
           >
-            ${icon('mapPin', 14)}
             Administrar Sedes y Sucursales (${branches.length - 1} activas)
           </button>
         </div>
@@ -90,10 +88,8 @@ export function renderHeader(state) {
         data-action="open-branches-drawer"
         title="Ver todas las Sedes y Sucursales de Comercial Norte SRL"
       >
-        ${icon('building2', 14)}
         <span>Sedes / Sucursales</span>
       </button>
-      ${icon('chevronRight', 14)}
       <div class="branch-dropdown-wrap">
         <button
           type="button"
@@ -108,7 +104,6 @@ export function renderHeader(state) {
         </button>
         ${branchDropdownHtml}
       </div>
-      ${icon('chevronRight', 14)}
       <strong>${escapeHtml(SCREEN_TITLES[screen] || 'Dashboard')}</strong>
     </div>
 

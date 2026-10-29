@@ -22,7 +22,6 @@ const TONE_MAP = {
 export function renderStatusBadge(status) {
   const toneClass = TONE_MAP[status] || 'badge-neutral';
   return `<span class="badge ${toneClass}">
-    <span class="badge-dot"></span>
     ${escapeHtml(status)}
   </span>`;
 }

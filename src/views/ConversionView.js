@@ -5,7 +5,6 @@
  */
 
 import { escapeHtml, formatCurrency, formatNumber } from '../core/formatters.js';
-import { icon } from '../core/icons.js';
 
 /**
  * Renderiza la vista de conversión de kits y cajas.
@@ -37,7 +36,6 @@ export function renderConversionView(state) {
     <div class="page-header">
       <div>
         <div class="conversion-badge-top">
-          ${icon('truck', 14)}
           <span>Módulo de fraccionamiento mayorista</span>
         </div>
         <h1 class="page-title">Convertir Kits o Cajas a Unidades</h1>
@@ -62,7 +60,6 @@ export function renderConversionView(state) {
             class="btn btn-sm ${conv.customMode ? 'btn-primary' : 'btn-secondary'}"
             data-action="toggle-custom-conversion"
           >
-            ${icon('sparkles', 14)}
             ${conv.customMode ? 'Usando modo libre' : 'Conversión libre'}
           </button>
         </div>
@@ -82,7 +79,7 @@ export function renderConversionView(state) {
               >
                 <div class="recipe-card-top">
                   <span class="recipe-supplier-tag">
-                    ${icon('truck', 12)} ${escapeHtml(recipe.supplier)}
+                    ${escapeHtml(recipe.supplier)}
                   </span>
                   <span class="recipe-factor-pill">1 caja = ${recipe.conversionFactor} u.</span>
                 </div>
@@ -93,7 +90,6 @@ export function renderConversionView(state) {
                     <span>${escapeHtml(src?.name || 'Caja proveedor')}</span>
                     <strong class="tabular">Disp: ${src?.stock ?? 0} ${escapeHtml(src?.unit || 'cajas')}</strong>
                   </div>
-                  ${icon('arrowRight', 16)}
                   <div class="recipe-node">
                     <span class="sku-code">${escapeHtml(dst?.sku || 'UNI')}</span>
                     <span>${escapeHtml(dst?.name || 'Unidad venta')}</span>
@@ -231,7 +227,6 @@ export function renderConversionView(state) {
             </div>
 
             <div class="conversion-preview-arrow">
-              ${icon('boxes', 20)}
               <span>x${factor}</span>
             </div>
 
@@ -245,7 +240,6 @@ export function renderConversionView(state) {
           </div>
 
           <div class="conversion-cost-note">
-            ${icon('packageCheck', 16)}
             <span>
               Costo unitario resultante por unidad desglosada: <strong>${formatCurrency(unitCostEstimated)}</strong> (calculado sobre costo de caja ${formatCurrency(sourceProduct?.cost || 0)}).
             </span>
@@ -257,7 +251,6 @@ export function renderConversionView(state) {
             style="width: 100%; justify-content: center; height: 42px;"
             data-action="execute-kit-conversion"
           >
-            ${icon('checkCircle2', 16)}
             Confirmar conversión (+${formatNumber(generatedUnits)} ${escapeHtml(targetProduct?.unit || 'unidades')})
           </button>
         </div>

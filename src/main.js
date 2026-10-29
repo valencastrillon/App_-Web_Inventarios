@@ -472,7 +472,6 @@ rootEl.addEventListener('click', (event) => {
         price: Math.max(0, Number(r.price) || 0),
         location: r.location.trim() || 'Depósito Central',
         branch: r.branch,
-        icon: 'wrench',
       }));
       importProductsBatch(formatted);
       break;

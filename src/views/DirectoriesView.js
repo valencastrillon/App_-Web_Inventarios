@@ -4,7 +4,6 @@
  */
 
 import { escapeHtml, formatCurrency, formatNumber } from '../core/formatters.js';
-import { icon } from '../core/icons.js';
 
 /**
  * Renderiza la vista de Categorías y Ubicaciones de almacén.
@@ -14,41 +13,46 @@ import { icon } from '../core/icons.js';
 export function renderCategoriesView(state) {
   const { categories, products } = state;
 
-  const cardsHtml = categories
-    .map((cat) => {
-      const items = products.filter((p) => p.category === cat.name);
-      const units = items.reduce((acc, p) => acc + p.stock, 0);
-      const value = items.reduce((acc, p) => acc + p.stock * p.cost, 0);
-
-      return `<article class="entity-card">
-        <div class="entity-head">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <div class="kpi-icon tone-blue">${icon('tags', 18)}</div>
-            <div>
-              <div class="entity-title">${escapeHtml(cat.name)}</div>
-              <div class="entity-sub">Prefijo SKU: ${escapeHtml(cat.code)}</div>
-            </div>
+  const cardsHtml = categories.map((category) => {
+    const items = products.filter((product) => product.category === category.name);
+    const locations = [...new Set(items.map((product) => product.location))];
+    const totalUnits = items.reduce((sum, product) => sum + product.stock, 0);
+    const totalValue = items.reduce((sum, product) => sum + product.stock * product.cost, 0);
+    const locationGroups = locations.map((location) => {
+      const locationItems = items.filter((product) => product.location === location);
+      const units = locationItems.reduce((sum, product) => sum + product.stock, 0);
+      const value = locationItems.reduce((sum, product) => sum + product.stock * product.cost, 0);
+      return `<section class="category-location-group">
+        <div class="category-location-head">
+          <div>
+            <div class="category-location-title">${escapeHtml(location)}</div>
+            <div class="category-location-count">${locationItems.length} productos · ${formatNumber(units)} unidades</div>
           </div>
-          <span class="badge badge-info">Margen ${cat.targetMargin}%</span>
+          <strong class="tabular">${formatCurrency(value)}</strong>
         </div>
-
-        <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.45;">
-          ${escapeHtml(cat.description)}
-        </p>
-
-        <div class="entity-meta">
-          <div style="display: flex; align-items: center; gap: 6px;">
-            ${icon('mapPin', 13)}
-            <span>${escapeHtml(cat.location)}</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; padding-top: 6px; border-top: 1px solid var(--border); color: var(--text-primary); font-weight: 600;">
-            <span>${items.length} productos (${formatNumber(units)} u.)</span>
-            <span class="tabular">${formatCurrency(value)}</span>
-          </div>
+        <div class="category-product-list">
+          ${locationItems.map((product) => `<div class="category-product-row">
+            <span class="category-product-name">${escapeHtml(product.name)}</span>
+            <span class="category-product-units tabular">${formatNumber(product.stock)} ${escapeHtml(product.unit)}</span>
+            <span class="category-product-value tabular">${formatCurrency(product.stock * product.cost)}</span>
+          </div>`).join('')}
         </div>
-      </article>`;
-    })
-    .join('');
+      </section>`;
+    }).join('');
+
+    return `<article class="category-card">
+      <header class="category-card-header">
+        <div class="category-card-heading">
+          <h2 class="category-card-title">${escapeHtml(category.name)}</h2>
+          <span class="category-chip">SKU ${escapeHtml(category.code)}</span>
+          <span class="category-chip">Margen ${category.targetMargin}%</span>
+        </div>
+        <div class="category-card-summary">${items.length} productos · ${formatNumber(totalUnits)} unidades · <strong class="tabular">${formatCurrency(totalValue)}</strong></div>
+        <p class="category-card-description">${escapeHtml(category.description)}</p>
+      </header>
+      <div class="category-location-list">${locationGroups}</div>
+    </article>`;
+  }).join('');
 
   return `<div class="page">
     <div class="page-header">
@@ -64,12 +68,11 @@ export function renderCategoriesView(state) {
           class="btn btn-primary"
           data-action="open-category-drawer"
         >
-          ${icon('plus', 16)}
-          <span>Nueva categoría</span>
+          Nueva categoría
         </button>
       </div>
     </div>
 
-    <div class="cards-grid">${cardsHtml}</div>
+    <div class="category-card-list">${cardsHtml}</div>
   </div>`;
 }
