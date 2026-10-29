@@ -25,7 +25,6 @@ import {
   openEditProductDrawer,
   openNewProductDrawer,
   removeProductById,
-  saveBranchDraft,
   saveCategoryDraft,
   saveMovementDraft,
   saveProductDraft,
@@ -247,10 +246,6 @@ rootEl.addEventListener('click', (event) => {
       break;
     }
 
-    case 'save-branch': {
-      saveBranchDraft();
-      break;
-    }
 
     // Alertas y Centro de Ayuda
     case 'open-alerts': {

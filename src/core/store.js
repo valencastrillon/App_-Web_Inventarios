@@ -182,7 +182,9 @@ const state = {
   },
 
   // Drawers laterales y borradores de formularios
-  drawer: getInitialParam('drawer') === 'import' ? 'import' : null,
+  drawer: ['import', 'branches'].includes(getInitialParam('drawer'))
+    ? getInitialParam('drawer')
+    : null,
   editingProduct: null,
   productDraft: {
     name: '',
@@ -211,15 +213,6 @@ const state = {
     targetMargin: '40',
     location: 'Depósito Central · Pasillo E',
   },
-  branchDraft: {
-    name: '',
-    city: '',
-    address: '',
-    manager: '',
-    phone: '+54 11 ',
-    warehouses: '1',
-  },
-
   // Estado del Drawer de Carga Masiva
   bulkImportState: {
     activeTab: 'table',

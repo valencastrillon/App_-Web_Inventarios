@@ -31,6 +31,15 @@ export function renderConversionView(state) {
 
   const generatedUnits = qtyBoxes * factor;
   const unitCostEstimated = sourceProduct ? Math.round(sourceProduct.cost / factor) : 0;
+  const isValid = Boolean(
+    sourceProduct &&
+      targetProduct &&
+      sourceProduct.id !== targetProduct.id &&
+      qtyBoxes >= 1 &&
+      factor >= 1 &&
+      qtyBoxes <= sourceProduct.stock &&
+      String(conv.responsible || '').trim()
+  );
 
   return `<div class="page">
     <div class="page-header">
@@ -64,7 +73,7 @@ export function renderConversionView(state) {
           </button>
         </div>
 
-        <div class="panel-body" style="display: flex; flex-direction: column; gap: 12px;">
+        <div class="panel-body conversion-recipe-list">
           ${kitRecipes
             .map((recipe) => {
               const src = products.find((p) => p.id === recipe.sourceProductId);
@@ -78,23 +87,16 @@ export function renderConversionView(state) {
                 data-recipe-id="${escapeHtml(recipe.id)}"
               >
                 <div class="recipe-card-top">
-                  <span class="recipe-supplier-tag">
-                    ${escapeHtml(recipe.supplier)}
-                  </span>
+                  <div>
+                    <span class="recipe-supplier-tag">${escapeHtml(recipe.supplier)}</span>
+                    <div class="recipe-title">${escapeHtml(recipe.name)}</div>
+                  </div>
                   <span class="recipe-factor-pill">1 caja = ${recipe.conversionFactor} u.</span>
                 </div>
-                <div class="recipe-title">${escapeHtml(recipe.name)}</div>
-                <div class="recipe-flow">
-                  <div class="recipe-node">
-                    <span class="sku-code">${escapeHtml(src?.sku || 'KIT')}</span>
-                    <span>${escapeHtml(src?.name || 'Caja proveedor')}</span>
-                    <strong class="tabular">Disp: ${src?.stock ?? 0} ${escapeHtml(src?.unit || 'cajas')}</strong>
-                  </div>
-                  <div class="recipe-node">
-                    <span class="sku-code">${escapeHtml(dst?.sku || 'UNI')}</span>
-                    <span>${escapeHtml(dst?.name || 'Unidad venta')}</span>
-                    <strong class="tabular">Actual: ${dst?.stock ?? 0} ${escapeHtml(dst?.unit || 'u.')}</strong>
-                  </div>
+                <div class="recipe-sku-table">
+                  <div class="recipe-sku-head"><span>SKU</span><span>Descripción</span><span>Stock actual</span><span>Disponible</span></div>
+                  <div class="recipe-sku-row"><strong class="sku-code">${escapeHtml(src?.sku || 'KIT')}</strong><span>${escapeHtml(src?.name || 'Caja proveedor')}</span><span class="tabular">${src?.stock ?? 0} ${escapeHtml(src?.unit || 'cajas')}</span><strong class="tabular">${src?.stock ?? 0}</strong></div>
+                  <div class="recipe-sku-row"><strong class="sku-code">${escapeHtml(dst?.sku || 'UNI')}</strong><span>${escapeHtml(dst?.name || 'Unidad venta')}</span><span class="tabular">${dst?.stock ?? 0} ${escapeHtml(dst?.unit || 'u.')}</span><strong class="tabular">${dst?.stock ?? 0}</strong></div>
                 </div>
                 <div class="recipe-notes">${escapeHtml(recipe.notes)}</div>
               </button>`;
@@ -114,7 +116,7 @@ export function renderConversionView(state) {
           </div>
         </div>
 
-        <div class="panel-body" style="display: flex; flex-direction: column; gap: 16px;">
+        <div class="panel-body conversion-execution-body">
           ${
             conv.customMode
               ? `<div class="form-grid">
@@ -158,7 +160,7 @@ export function renderConversionView(state) {
               : ''
           }
 
-          <div class="form-grid">
+          <div class="form-grid conversion-form-row">
             <div class="field">
               <label for="conv-qty">Cantidad de cajas / kits a abrir</label>
               <input
@@ -186,7 +188,7 @@ export function renderConversionView(state) {
             </div>
           </div>
 
-          <div class="form-grid">
+          <div class="form-grid conversion-form-row">
             <div class="field">
               <label for="conv-branch">Sede donde se realiza el fraccionamiento</label>
               <select
@@ -218,37 +220,33 @@ export function renderConversionView(state) {
 
           <!-- Previsualización del Impacto -->
           <div class="conversion-preview-box">
-            <div class="conversion-preview-col">
-              <span class="conversion-preview-label">Baja de Bulto Cerrado</span>
-              <div class="conversion-preview-name">${escapeHtml(sourceProduct?.name || '—')}</div>
-              <div class="conversion-preview-math danger tabular">
-                Stock: ${sourceProduct?.stock ?? 0} → ${Math.max(0, (sourceProduct?.stock ?? 0) - qtyBoxes)} ${escapeHtml(sourceProduct?.unit || '')} (-${qtyBoxes})
-              </div>
+            <div class="conversion-preview-card conversion-preview-out">
+              <span class="conversion-preview-label">Baja</span>
+              <strong class="conversion-preview-name">Bulto cerrado</strong>
+              <span class="conversion-preview-sku">${escapeHtml(sourceProduct?.sku || '—')} · ${escapeHtml(sourceProduct?.name || '—')}</span>
+              <div class="conversion-stock-values"><span>${sourceProduct?.stock ?? 0}</span><span>→</span><strong>${Math.max(0, (sourceProduct?.stock ?? 0) - qtyBoxes)}</strong><b>-${qtyBoxes}</b></div>
+              <small>${escapeHtml(sourceProduct?.unit || 'cajas')}</small>
             </div>
-
-            <div class="conversion-preview-arrow">
-              <span>x${factor}</span>
-            </div>
-
-            <div class="conversion-preview-col">
-              <span class="conversion-preview-label">Alta de Unidades Individuales</span>
-              <div class="conversion-preview-name">${escapeHtml(targetProduct?.name || '—')}</div>
-              <div class="conversion-preview-math success tabular">
-                Stock: ${targetProduct?.stock ?? 0} → ${(targetProduct?.stock ?? 0) + generatedUnits} ${escapeHtml(targetProduct?.unit || '')} (+${formatNumber(generatedUnits)})
-              </div>
+            <div class="conversion-preview-arrow" aria-hidden="true"><span>×${factor}</span></div>
+            <div class="conversion-preview-card conversion-preview-in">
+              <span class="conversion-preview-label">Alta</span>
+              <strong class="conversion-preview-name">Unidades individuales</strong>
+              <span class="conversion-preview-sku">${escapeHtml(targetProduct?.sku || '—')} · ${escapeHtml(targetProduct?.name || '—')}</span>
+              <div class="conversion-stock-values"><span>${targetProduct?.stock ?? 0}</span><span>→</span><strong>${(targetProduct?.stock ?? 0) + generatedUnits}</strong><b>+${formatNumber(generatedUnits)}</b></div>
+              <small>${escapeHtml(targetProduct?.unit || 'unidades')}</small>
             </div>
           </div>
 
           <div class="conversion-cost-note">
-            <span>
-              Costo unitario resultante por unidad desglosada: <strong>${formatCurrency(unitCostEstimated)}</strong> (calculado sobre costo de caja ${formatCurrency(sourceProduct?.cost || 0)}).
-            </span>
+            <span>Costo unitario resultante</span>
+            <strong>${formatCurrency(unitCostEstimated)}</strong>
+            <small>Calculado sobre costo de caja ${formatCurrency(sourceProduct?.cost || 0)}</small>
           </div>
 
           <button
             type="button"
-            class="btn btn-primary"
-            style="width: 100%; justify-content: center; height: 42px;"
+            class="btn btn-primary conversion-submit"
+            ${isValid ? '' : 'disabled'}
             data-action="execute-kit-conversion"
           >
             Confirmar conversión (+${formatNumber(generatedUnits)} ${escapeHtml(targetProduct?.unit || 'unidades')})

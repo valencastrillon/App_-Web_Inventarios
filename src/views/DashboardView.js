@@ -423,15 +423,6 @@ export function renderDashboardView(state) {
               .slice(0, 5)
               .map(
                 (m) => `<div class="feed-item">
-                  <div
-                    class="feed-icon"
-                    style="background: ${
-                      m.type === 'Ingreso' ? 'var(--success-bg)' : 'var(--surface-muted)'
-                    }; color: ${
-                      m.type === 'Ingreso' ? 'var(--success-text)' : 'var(--text-secondary)'
-                    };"
-                  >
-                  </div>
                   <div class="feed-content">
                     <div class="feed-title">
                       ${escapeHtml(m.type)} · ${escapeHtml(m.productName)}

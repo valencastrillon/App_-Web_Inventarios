@@ -431,7 +431,7 @@ function renderCategoryDrawer(state) {
 }
 
 function renderBranchesDrawer(state) {
-  const { branches, branchLocation, products, branchDraft: d } = state;
+  const { branches, branchLocation, products } = state;
 
   return `<div class="drawer-backdrop" data-action="close-drawer">
     <aside
@@ -507,65 +507,6 @@ function renderBranchesDrawer(state) {
             .join('')}
         </div>
 
-        <div class="panel" style="margin-top: 12px;">
-          <div class="panel-header">
-            <div>
-              <div class="panel-title">Incorporar nueva Sede o Sucursal a la empresa</div>
-              <div class="panel-subtitle">
-                Habilitá un nuevo centro de distribución o punto de venta dentro de Comercial Norte SRL
-              </div>
-            </div>
-          </div>
-          <div class="panel-body">
-            <div class="form-grid">
-              <div class="field">
-                <label>Nombre de la Sede *</label>
-                <input
-                  class="input"
-                  value="${escapeHtml(d.name)}"
-                  placeholder="Ej. Sucursal Oeste (Morón)"
-                  data-draft="branchDraft"
-                  data-field="name"
-                />
-              </div>
-              <div class="field">
-                <label>Ciudad / Zona</label>
-                <input
-                  class="input"
-                  value="${escapeHtml(d.city)}"
-                  placeholder="Ej. Morón, GBA Oeste"
-                  data-draft="branchDraft"
-                  data-field="city"
-                />
-              </div>
-              <div class="field">
-                <label>Dirección operativa</label>
-                <input
-                  class="input"
-                  value="${escapeHtml(d.address)}"
-                  placeholder="Av. Rivadavia 18400"
-                  data-draft="branchDraft"
-                  data-field="address"
-                />
-              </div>
-              <div class="field">
-                <label>Encargado de Sede</label>
-                <input
-                  class="input"
-                  value="${escapeHtml(d.manager)}"
-                  placeholder="Nombre del responsable"
-                  data-draft="branchDraft"
-                  data-field="manager"
-                />
-              </div>
-            </div>
-            <div style="display: flex; justify-content: flex-end; margin-top: 12px;">
-              <button type="button" class="btn btn-primary btn-sm" data-action="save-branch">
-                ${icon('plus', 14)} Dar de alta sucursal
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
 
       <div class="drawer-footer">
