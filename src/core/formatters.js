@@ -70,29 +70,79 @@ export function getInitialParam(key) {
  * @param {string} defaultBranch Sucursal por defecto cuando no viene especificada.
  * @returns {Array<object>}
  */
-export function parseCsvProducts(text, defaultBranch = 'CD Norte') {
-  const lines = text
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean);
+const REQUIRED_BULK_COLUMNS = ['nombre', 'sku', 'stock', 'costo', 'sede'];
+const COLUMN_ALIASES = { producto: 'nombre', 'nombre del producto': 'nombre', name: 'nombre', descripcion: 'subtitulo', categoría: 'categoria', category: 'categoria', 'stock mínimo': 'stock_minimo', minimo: 'stock_minimo', minstock: 'stock_minimo', cost: 'costo', price: 'precio', location: 'ubicacion', branch: 'sede' };
 
-  if (lines.length <= 1) return [];
+function normalizeColumn(value) {
+  const key = String(value || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  return COLUMN_ALIASES[key] || key.replace(/\s+/g, '_');
+}
 
-  const delimiter = lines[0].includes(';') ? ';' : ',';
-  return lines.slice(1).map((line, index) => {
-    const cols = line.split(delimiter).map((col) => col.trim());
-    return {
-      name: cols[0] || `Artículo importado ${index + 1}`,
-      subtitle: cols[1] || 'Importado por lote CSV',
-      sku: (cols[2] || `IMP-${100 + index}`).toUpperCase(),
-      category: cols[3] || 'Ferretería',
-      stock: Number(cols[4]) || 0,
-      minStock: Number(cols[5]) || 10,
-      unit: cols[6] || 'unid.',
-      cost: Number(cols[7]) || 0,
-      price: Number(cols[8]) || 0,
-      location: cols[9] || 'Depósito Central · Pasillo A-1',
-      branch: cols[10] || defaultBranch,
-    };
+function splitCsvLine(line, delimiter) {
+  const result = []; let current = ''; let quoted = false;
+  for (let i = 0; i < line.length; i += 1) {
+    const char = line[i];
+    if (char === '"' && line[i + 1] === '"') { current += '"'; i += 1; }
+    else if (char === '"') quoted = !quoted;
+    else if (char === delimiter && !quoted) { result.push(current.trim()); current = ''; }
+    else current += char;
+  }
+  result.push(current.trim());
+  return result;
+}
+
+function parseRows(rows, branches = [], defaultBranch = 'CD Norte') {
+  const headers = rows[0].map(normalizeColumn);
+  const missing = REQUIRED_BULK_COLUMNS.filter((column) => !headers.includes(column));
+  if (missing.length) return { products: [], errors: [], columnsError: `Faltan: ${missing.join(', ')}.`, stats: { totalRows: 0, validRows: 0, invalidRows: 0, totalUnits: 0, totalValuation: 0 } };
+  const branchNames = branches.filter((branch) => branch.id !== 'all').map((branch) => branch.name);
+  const products = []; const errors = [];
+  rows.slice(1).forEach((values, index) => {
+    if (values.every((value) => !String(value).trim())) return;
+    const row = Object.fromEntries(headers.map((header, col) => [header, String(values[col] ?? '').trim()]));
+    const messages = []; const stock = Number(row.stock); const cost = Number(row.costo); const minStock = row.stock_minimo === '' ? 0 : Number(row.stock_minimo); const price = row.precio === '' ? 0 : Number(row.precio);
+    if (!row.nombre) messages.push('nombre vacío');
+    if (!row.sku) messages.push('SKU vacío');
+    if (row.stock === '' || !Number.isFinite(stock) || stock < 0) messages.push('stock inválido');
+    if (row.costo === '' || !Number.isFinite(cost) || cost < 0) messages.push('costo inválido');
+    if (row.stock_minimo !== '' && (!Number.isFinite(minStock) || minStock < 0)) messages.push('stock mínimo inválido');
+    if (row.precio !== '' && (!Number.isFinite(price) || price < 0)) messages.push('precio inválido');
+    if (!row.sede) messages.push('sede vacía');
+    else if (branchNames.length && !branchNames.includes(row.sede)) messages.push(`sede inexistente: ${row.sede}`);
+    if (messages.length) errors.push({ row: index + 2, messages });
+    else products.push({ rowNumber: index + 2, name: row.nombre, subtitle: row.subtitulo || 'Importado por lote', sku: row.sku.toUpperCase(), category: row.categoria || 'Ferretería', stock, minStock: Number.isFinite(minStock) ? minStock : 0, unit: row.unidad || 'unid.', cost, price, location: row.ubicacion || 'Depósito Central', branch: row.sede || defaultBranch });
   });
+  return { products, errors, columnsError: '', stats: { totalRows: rows.length - 1, validRows: products.length, invalidRows: errors.length, totalUnits: products.reduce((sum, row) => sum + row.stock, 0), totalValuation: products.reduce((sum, row) => sum + row.stock * row.cost, 0) } };
+}
+
+export function parseCsvProducts(text, defaultBranch = 'CD Norte') {
+  const lines = text.split(/\r?\n/).filter((line) => line.trim());
+  if (lines.length < 2) return [];
+  const delimiter = lines[0].includes(';') ? ';' : ',';
+  return parseRows(lines.map((line) => splitCsvLine(line, delimiter)), [], defaultBranch).products;
+}
+
+export function parseBulkCsv(text, branches, defaultBranch = 'CD Norte') {
+  const lines = text.split(/\r?\n/).filter((line) => line.trim());
+  if (lines.length < 2) return { products: [], errors: [], columnsError: 'El archivo debe incluir encabezado y al menos una fila.', stats: { totalRows: 0, validRows: 0, invalidRows: 0, totalUnits: 0, totalValuation: 0 } };
+  const delimiter = lines[0].includes(';') ? ';' : ',';
+  return parseRows(lines.map((line) => splitCsvLine(line, delimiter)), branches, defaultBranch);
+}
+
+async function unzipXlsx(buffer) {
+  const view = new DataView(buffer); const decoder = new TextDecoder(); const files = {};
+  for (let offset = 0; offset < view.byteLength - 30;) {
+    if (view.getUint32(offset, true) !== 0x04034b50) { offset += 1; continue; }
+    const method = view.getUint16(offset + 8, true); const compressedSize = view.getUint32(offset + 18, true); const nameSize = view.getUint16(offset + 26, true); const extraSize = view.getUint16(offset + 28, true); const name = decoder.decode(new Uint8Array(buffer, offset + 30, nameSize)); const start = offset + 30 + nameSize + extraSize; const raw = new Uint8Array(buffer, start, compressedSize);
+    let data = raw; if (method === 8) { const stream = new Blob([raw]).stream().pipeThrough(new DecompressionStream('deflate-raw')); data = new Uint8Array(await new Response(stream).arrayBuffer()); }
+    files[name] = decoder.decode(data); offset = start + compressedSize;
+  }
+  const shared = files['xl/sharedStrings.xml'] ? [...files['xl/sharedStrings.xml'].matchAll(/<t[^>]*>([\s\S]*?)<\/t>/g)].map((match) => match[1].replace(/&amp;/g, '&').replace(/&lt;/g, '<')) : [];
+  const sheet = files['xl/worksheets/sheet1.xml'] || ''; return [...sheet.matchAll(/<row[^>]*>([\s\S]*?)<\/row>/g)].map((row) => [...row[1].matchAll(/<c([^>]*)>(?:<v>([\s\S]*?)<\/v>)?/g)].map((cell) => { const value = cell[2] || ''; return /t="s"/.test(cell[1]) ? shared[Number(value)] || '' : value; }));
+}
+
+export async function parseBulkFile(file, branches, defaultBranch = 'CD Norte') {
+  const isCsv = /\.csv$/i.test(file.name) || file.type === 'text/csv';
+  if (isCsv) return parseBulkCsv(await file.text(), branches, defaultBranch);
+  const rows = await unzipXlsx(await file.arrayBuffer()); return parseRows(rows, branches, defaultBranch);
 }

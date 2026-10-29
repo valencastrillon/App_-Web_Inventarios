@@ -133,7 +133,7 @@ export function renderHeader(state) {
         type="button"
         class="btn btn-secondary"
         data-action="open-import-drawer"
-        title="Subir productos masivamente por tabla o CSV"
+        title="Subir productos masivamente por CSV o Excel"
       >
         ${icon('upload', 16)}
         <span>Carga masiva</span>

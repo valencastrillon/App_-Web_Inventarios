@@ -7,7 +7,7 @@
 import { renderActiveDrawer } from './components/DrawerManager.js';
 import { renderHeader } from './components/Header.js';
 import { renderSidebar } from './components/Sidebar.js';
-import { parseCsvProducts } from './core/formatters.js';
+import { parseBulkFile } from './core/formatters.js';
 import { icon } from './core/icons.js';
 import { initRouter, navigate, navigateFromMenu } from './core/router.js';
 import { store } from './core/store.js';
@@ -39,6 +39,17 @@ import { renderReportsView } from './views/ReportsView.js';
 import { renderSettingsView } from './views/SettingsView.js';
 
 const rootEl = document.getElementById('root');
+
+async function loadBulkFile(file) {
+  const state = store.getState();
+  const defaultBranch = state.branchLocation === 'Todas las sedes' ? 'CD Norte' : state.branchLocation;
+  try {
+    const parsed = await parseBulkFile(file, state.branches, defaultBranch);
+    store.setState({ bulkImportState: { ...state.bulkImportState, fileName: file.name, csvPreview: parsed.products, csvErrors: parsed.errors, csvStats: parsed.stats, columnsError: parsed.columnsError } });
+  } catch (error) {
+    store.setState({ bulkImportState: { ...state.bulkImportState, fileName: file.name, csvPreview: [], csvErrors: [{ row: 0, messages: [error.message || 'No se pudo leer el archivo'] }], columnsError: 'No se pudo leer el archivo. Verificá que sea un CSV o XLSX válido.' } });
+  }
+}
 
 /**
  * Renderiza la vista activa según `state.screen`.
@@ -83,8 +94,6 @@ function renderApp() {
         dataLoginInput: activeEl.getAttribute?.('data-login-input') || null,
         dataDraft: activeEl.getAttribute?.('data-draft') || null,
         dataField: activeEl.getAttribute?.('data-field') || null,
-        dataBulkRow: activeEl.getAttribute?.('data-bulk-row') || null,
-        dataBulkField: activeEl.getAttribute?.('data-bulk-field') || null,
         selectionStart: typeof activeEl.selectionStart === 'number' ? activeEl.selectionStart : null,
         selectionEnd: typeof activeEl.selectionEnd === 'number' ? activeEl.selectionEnd : null,
       }
@@ -135,10 +144,6 @@ function restoreFocus(desc) {
 
   if (desc.id) {
     target = document.getElementById(desc.id);
-  } else if (desc.dataBulkRow && desc.dataBulkField) {
-    target = document.querySelector(
-      `[data-bulk-row="${desc.dataBulkRow}"][data-bulk-field="${desc.dataBulkField}"]`
-    );
   } else if (desc.dataDraft && desc.dataField) {
     target = document.querySelector(
       `[data-draft="${desc.dataDraft}"][data-field="${desc.dataField}"]`
@@ -370,111 +375,14 @@ rootEl.addEventListener('click', (event) => {
       break;
     }
 
-    // Carga Masiva (Tabla interactiva + CSV)
-    case 'set-bulk-tab': {
-      const tab = actionBtn.dataset.tab;
-      if (tab === 'table' || tab === 'csv') {
-        store.setState({
-          bulkImportState: { ...state.bulkImportState, activeTab: tab },
-        });
-      }
-      break;
-    }
-
-    case 'bulk-add-row': {
-      const rows = state.bulkImportState.rows;
-      const nextIdx = rows.length + 1;
-      const defaultBranch =
-        state.branchLocation === 'Todas las sedes' ? 'CD Norte' : state.branchLocation;
-      store.setState({
-        bulkImportState: {
-          ...state.bulkImportState,
-          rows: [
-            ...rows,
-            {
-              id: `row-${Date.now()}-${nextIdx}`,
-              name: '',
-              sku: `GEN-0${400 + nextIdx}`,
-              category: state.categories[0]?.name || 'Ferretería',
-              branch: defaultBranch,
-              stock: '10',
-              minStock: '5',
-              unit: 'unid.',
-              cost: '10000',
-              price: '15500',
-              location: 'Depósito Central · Pasillo A-1',
-            },
-          ],
-        },
-      });
-      break;
-    }
-
-    case 'bulk-add-three-rows': {
-      const rows = state.bulkImportState.rows;
-      const base = rows.length + 1;
-      const defaultBranch =
-        state.branchLocation === 'Todas las sedes' ? 'CD Norte' : state.branchLocation;
-      const extras = [0, 1, 2].map((offset) => ({
-        id: `row-${Date.now()}-${base + offset}`,
-        name: '',
-        sku: `GEN-0${400 + base + offset}`,
-        category: state.categories[offset % state.categories.length]?.name || 'Ferretería',
-        branch: defaultBranch,
-        stock: '12',
-        minStock: '5',
-        unit: 'unid.',
-        cost: '12000',
-        price: '18000',
-        location: 'Depósito Central · Pasillo A-1',
-      }));
-      store.setState({
-        bulkImportState: {
-          ...state.bulkImportState,
-          rows: [...rows, ...extras],
-        },
-      });
-      break;
-    }
-
-    case 'bulk-remove-row': {
-      const rowId = actionBtn.dataset.rowId;
-      const rows = state.bulkImportState.rows;
-      if (rows.length <= 1) return;
-      store.setState({
-        bulkImportState: {
-          ...state.bulkImportState,
-          rows: rows.filter((r) => r.id !== rowId),
-        },
-      });
-      break;
-    }
-
-    case 'submit-bulk-table': {
-      const valid = state.bulkImportState.rows.filter(
-        (r) => r.name.trim() !== '' && r.sku.trim() !== ''
-      );
-      if (valid.length === 0) return;
-      const formatted = valid.map((r) => ({
-        name: r.name.trim(),
-        subtitle: `Ingreso masivo por planilla · ${r.branch}`,
-        sku: r.sku.trim().toUpperCase(),
-        category: r.category,
-        stock: Math.max(0, Number(r.stock) || 0),
-        minStock: Math.max(0, Number(r.minStock) || 0),
-        unit: r.unit || 'unid.',
-        cost: Math.max(0, Number(r.cost) || 0),
-        price: Math.max(0, Number(r.price) || 0),
-        location: r.location.trim() || 'Depósito Central',
-        branch: r.branch,
-      }));
-      importProductsBatch(formatted);
-      break;
-    }
-
     case 'trigger-csv-input': {
       const fileInput = document.getElementById('bulk-csv-file-input');
       if (fileInput) fileInput.click();
+      break;
+    }
+
+    case 'clear-bulk-file': {
+      store.setState({ bulkImportState: { ...state.bulkImportState, csvPreview: [], csvErrors: [], csvStats: { totalRows: 0, validRows: 0, invalidRows: 0, totalUnits: 0, totalValuation: 0 }, columnsError: '', fileName: '' } });
       break;
     }
 
@@ -735,22 +643,6 @@ rootEl.addEventListener('input', (event) => {
     return;
   }
 
-  // Celdas de la tabla interactiva de Carga Masiva
-  if (target.dataset.bulkRow && target.dataset.bulkField) {
-    const rowId = target.dataset.bulkRow;
-    const field = target.dataset.bulkField;
-    const nextRows = state.bulkImportState.rows.map((r) =>
-      r.id === rowId ? { ...r, [field]: target.value } : r
-    );
-    store.setState({
-      bulkImportState: {
-        ...state.bulkImportState,
-        rows: nextRows,
-      },
-    });
-    return;
-  }
-
   // Inputs del Conversor de Kits
   if (target.dataset.conversionInput) {
     const field = target.dataset.conversionInput;
@@ -782,24 +674,11 @@ rootEl.addEventListener('change', (event) => {
   const target = event.target;
   const state = store.getState();
 
-  // Archivo CSV en Carga Masiva
+  // Archivo CSV / Excel en Carga Masiva
   if (target.id === 'bulk-csv-file-input') {
     const file = target.files?.[0];
     if (!file) return;
-    const defaultBranch =
-      state.branchLocation === 'Todas las sedes' ? 'CD Norte' : state.branchLocation;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const parsed = parseCsvProducts(String(reader.result || ''), defaultBranch);
-      store.setState({
-        bulkImportState: {
-          ...state.bulkImportState,
-          fileName: file.name,
-          csvPreview: parsed,
-        },
-      });
-    };
-    reader.readAsText(file);
+    loadBulkFile(file);
     return;
   }
 
@@ -862,6 +741,27 @@ rootEl.addEventListener('change', (event) => {
       settingsState: { ...state.settingsState, [key]: target.checked },
     });
   }
+});
+
+rootEl.addEventListener('dragover', (event) => {
+  const area = event.target.closest('.bulk-upload-area');
+  if (!area) return;
+  event.preventDefault();
+  area.classList.add('is-dragging');
+});
+
+rootEl.addEventListener('dragleave', (event) => {
+  const area = event.target.closest('.bulk-upload-area');
+  if (area && !area.contains(event.relatedTarget)) area.classList.remove('is-dragging');
+});
+
+rootEl.addEventListener('drop', (event) => {
+  const area = event.target.closest('.bulk-upload-area');
+  if (!area) return;
+  event.preventDefault();
+  area.classList.remove('is-dragging');
+  const file = event.dataTransfer?.files?.[0];
+  if (file) loadBulkFile(file);
 });
 
 /* Eventos de envío de formularios (submit) */

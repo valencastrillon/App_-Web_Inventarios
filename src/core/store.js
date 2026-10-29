@@ -51,50 +51,6 @@ function resolveInitialUsers() {
   }
 }
 
-export function createEmptyBulkRows(defaultBranch = 'CD Norte') {
-  return [
-    {
-      id: 'row-1',
-      name: 'Taladro Inalámbrico 18V Brushless',
-      sku: 'FER-0991',
-      category: 'Ferretería',
-      branch: defaultBranch,
-      stock: '24',
-      minStock: '8',
-      unit: 'unid.',
-      cost: '64000',
-      price: '94500',
-      location: 'Depósito Central · Pasillo A-2',
-    },
-    {
-      id: 'row-2',
-      name: 'Disyuntor Diferencial 2x40A 30mA',
-      sku: 'ELE-0842',
-      category: 'Electricidad',
-      branch: 'Sucursal Centro',
-      stock: '36',
-      minStock: '12',
-      unit: 'unid.',
-      cost: '19800',
-      price: '29900',
-      location: 'Depósito Central · Pasillo B-2',
-    },
-    {
-      id: 'row-3',
-      name: 'Membrana Líquida Poliuretánica 20L',
-      sku: 'PIN-0410',
-      category: 'Pinturería',
-      branch: 'Depósito Sur',
-      stock: '15',
-      minStock: '6',
-      unit: 'baldes',
-      cost: '58900',
-      price: '87900',
-      location: 'Depósito Sur · Sector C',
-    },
-  ];
-}
-
 const initialTheme = resolveInitialTheme();
 document.documentElement.dataset.theme = initialTheme;
 
@@ -215,9 +171,10 @@ const state = {
   },
   // Estado del Drawer de Carga Masiva
   bulkImportState: {
-    activeTab: 'table',
-    rows: createEmptyBulkRows('CD Norte'),
     csvPreview: [],
+    csvErrors: [],
+    csvStats: { totalRows: 0, validRows: 0, invalidRows: 0, totalUnits: 0, totalValuation: 0 },
+    columnsError: '',
     fileName: '',
   },
 

@@ -189,7 +189,7 @@ export function saveCategoryDraft() {
 }
 
 /**
- * Importa un lote de productos desde la tabla editable o archivo CSV.
+ * Importa un lote de productos validado desde un archivo CSV o Excel.
  * @param {Array<object>} rows
  */
 export function importProductsBatch(rows) {
