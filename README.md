@@ -1,6 +1,6 @@
-# Stockia — App Web de Inventarios
+# Logic Control — App Web de Inventarios
 
-Stockia es una aplicación estática de gestión de inventarios construida con HTML5, CSS3 y JavaScript nativo en módulos ES. No requiere Node, npm, Vite ni un proceso de compilación.
+Logic Control es una aplicación estática de gestión de inventarios construida con HTML5, CSS3 y JavaScript nativo en módulos ES. No requiere Node, npm, Vite ni un proceso de compilación.
 
 ## Ejecutar
 

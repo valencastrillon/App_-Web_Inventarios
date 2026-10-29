@@ -1,5 +1,5 @@
 /**
- * @fileoverview Punto de entrada principal (Entry Point) de la aplicación Stockia.
+ * @fileoverview Punto de entrada principal (Entry Point) de la aplicación Logic Control.
  * Coordina el ciclo de renderizado declarativo sobre el DOM, preserva el foco de
  * los campos de entrada activos y centraliza los eventos mediante Event Delegation.
  */
@@ -255,7 +255,7 @@ rootEl.addEventListener('click', (event) => {
     }
 
     case 'show-help-toast': {
-      store.showToast('Centro de soporte: soporte@stockia.ar · Línea directa int. 402');
+      store.showToast('Centro de soporte: soporte@logiccontrol.ar · Línea directa int. 402');
       break;
     }
 
@@ -489,7 +489,7 @@ rootEl.addEventListener('click', (event) => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'plantilla-stockia-productos.csv';
+      a.download = 'plantilla-logic-control-productos.csv';
       a.click();
       URL.revokeObjectURL(url);
       break;
@@ -557,7 +557,7 @@ rootEl.addEventListener('click', (event) => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'catalogo-stockia.csv';
+      a.download = 'logic-control-catalogo.csv';
       a.click();
       URL.revokeObjectURL(url);
       store.showToast(`Catálogo exportado (${state.products.length} registros)`);

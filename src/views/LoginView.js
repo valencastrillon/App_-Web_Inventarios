@@ -63,7 +63,7 @@ export function renderLoginView(state) {
           <i></i><i></i><i></i>
         </div>
         <div class="brand-copy">
-          <strong>Stockia</strong>
+          <strong>Logic Control</strong>
           <small>Gestión de Inventarios · v2.4</small>
         </div>
       </div>
@@ -100,7 +100,7 @@ export function renderLoginView(state) {
       <form class="login-card login-form" data-form="login" novalidate>
         <div class="login-heading">
           <div class="login-lock">${icon('lockKeyhole', 18)}</div>
-          <h2>Iniciar sesión en Stockia</h2>
+          <h2>Iniciar sesión en Logic Control</h2>
           <p>Accedé con tu cuenta corporativa de Google Workspace o con tus credenciales de operador.</p>
         </div>
 

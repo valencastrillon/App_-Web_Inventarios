@@ -76,9 +76,9 @@ export function renderSidebar(state) {
 
   return `<aside class="sidebar" aria-label="Navegación principal">
     <div class="sidebar-brand">
-      <div class="brand-mark" aria-hidden="true">S</div>
+      <div class="brand-mark" aria-hidden="true">LC</div>
       <div class="brand-text">
-        <div class="brand-name">Stockia</div>
+        <div class="brand-name">Logic Control</div>
         <div class="brand-sub">Comercial Norte SRL</div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-# Documentación Técnica y Arquitectura Profesional — Stockia (HTML5 + CSS3 + Vanilla JS)
+# Documentación Técnica y Arquitectura Profesional — Logic Control (HTML5 + CSS3 + Vanilla JS)
 
 > **Actualización 2026-10-28 — versión estática sin Node**
 >
@@ -14,7 +14,7 @@
 
 Ejecutar desde la raíz con un servidor estático, por ejemplo `python3 -m http.server 8000`, y abrir `http://localhost:8000/`. No ejecutar `npm install`, `npm run` ni Vite: ya no forman parte del proyecto.
 
-Este documento describe en detalle la **arquitectura profesional por capas** implementada para **Stockia — Sistema de Gestión de Inventarios (Comercial Norte SRL)**, migrado íntegramente a **HTML5 semántico, CSS3 modular y JavaScript nativo (ES Modules)** sin dependencias de frameworks ni backend.
+Este documento describe en detalle la **arquitectura profesional por capas** implementada para **Logic Control — Sistema de Gestión de Inventarios (Comercial Norte SRL)**, migrado íntegramente a **HTML5 semántico, CSS3 modular y JavaScript nativo (ES Modules)** sin dependencias de frameworks ni backend.
 
 ---
 
@@ -42,7 +42,7 @@ App_-Web_Inventarios/
 ├── README.md                           # Guía de ejecución estática y cambios
 ├── docs/
 │   ├── ARQUITECTURA_Y_DOCUMENTACION.md # Manual técnico de arquitectura y funciones
-│   ├── guia-stockia.pdf                # Informe ejecutivo PDF con capturas y arquitectura
+│   ├── guia-logic-control.pdf           # Informe ejecutivo PDF con capturas y arquitectura
 │   ├── documentacion-cambios-frontend.pdf
 │   └── screenshots/                    # Evidencia visual de alta resolución (1440×900)
 └── src/
