@@ -730,7 +730,6 @@
 :root[data-theme='dark'] .theme-option-active,
 :root[data-theme='dark'] .conversion-mode .conversion-mode-active { background: #2563eb; color: #fff; }
 
-:root[data-theme='dark'] .global-search,
 :root[data-theme='dark'] .table-search,
 :root[data-theme='dark'] .supplier-search,
 :root[data-theme='dark'] .field-label input,
@@ -751,7 +750,6 @@
 :root[data-theme='dark'] .login-field > div { color: #f1f5f9; background: #0b1120; border-color: #334155; }
 
 :root[data-theme='dark'] .button-secondary,
-:root[data-theme='dark'] .menu-toggle-btn,
 :root[data-theme='dark'] .branch-pill,
 :root[data-theme='dark'] .select-like,
 :root[data-theme='dark'] .business-badge,

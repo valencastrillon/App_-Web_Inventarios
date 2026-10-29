@@ -29,8 +29,6 @@ export function logoutSession() {
   window.sessionStorage.removeItem('stockia_auth');
   store.setState({
     authenticated: false,
-    mobileOpen: false,
-    sidebarVisible: false,
     branchMenuOpen: false,
   });
   store.showToast('Sesión finalizada');

@@ -75,7 +75,7 @@ export function renderLoginView(state) {
         </div>
         <h1>Control total de tu inventario, sin planillas dispersas.</h1>
         <p>
-          Centralizá productos, lotes mayoristas de proveedores, puntos de pedido críticos y
+          Centralizá productos, lotes mayoristas, puntos de pedido críticos y
           movimientos entre depósitos desde una única consola operativa.
         </p>
 

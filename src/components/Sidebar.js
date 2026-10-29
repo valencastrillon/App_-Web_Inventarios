@@ -1,8 +1,7 @@
 /**
- * @fileoverview Componente de Menú Lateral (Sidebar).
+ * @fileoverview Componente de barra lateral (Sidebar).
  * Incluye:
- * - Auto-ocultamiento al seleccionar cualquier sección (`data-nav-menu`).
- * - Acceso directo a "Convertir kits / cajas (Proveedores)".
+ * - Navegación por íconos, expandida automáticamente al pasar el mouse.
  * - Selector de Apariencia (Modo Claro y Modo Oscuro) justo debajo de Configuración.
  */
 
@@ -33,7 +32,7 @@ export function renderSidebar(state) {
       id: 'conversion',
       label: 'Convertir kits / cajas',
       iconName: 'boxes',
-      badge: 'Proveedores',
+      badge: String(kitStockCount),
       badgeTone: 'accent',
     },
     {
@@ -44,7 +43,6 @@ export function renderSidebar(state) {
       badgeTone: 'neutral',
     },
     { id: 'categorias', label: 'Categorías', iconName: 'tags' },
-    { id: 'proveedores', label: 'Proveedores', iconName: 'truck' },
     {
       id: 'reportes',
       label: 'Reportes',
@@ -63,6 +61,7 @@ export function renderSidebar(state) {
         data-action="nav-menu"
         data-screen="${item.id}"
         aria-current="${active ? 'page' : 'false'}"
+        title="${escapeHtml(item.label)}"
       >
         ${icon(item.iconName, 18)}
         <span>${escapeHtml(item.label)}</span>
@@ -82,15 +81,6 @@ export function renderSidebar(state) {
         <div class="brand-name">Stockia</div>
         <div class="brand-sub">Comercial Norte SRL</div>
       </div>
-      <button
-        type="button"
-        class="sidebar-close-btn"
-        data-action="hide-sidebar"
-        title="Ocultar menú lateral"
-        aria-label="Ocultar menú lateral"
-      >
-        ${icon('panelLeftClose', 16)}
-      </button>
     </div>
 
     <div class="sidebar-quick-stats">
@@ -100,7 +90,7 @@ export function renderSidebar(state) {
       </div>
       <div class="quick-stat-pill">
         <span class="quick-stat-dot warn"></span>
-        <span>${kitStockCount} kits prov.</span>
+        <span>${kitStockCount} kits</span>
       </div>
     </div>
 
@@ -115,6 +105,7 @@ export function renderSidebar(state) {
         data-action="nav-menu"
         data-screen="configuracion"
         aria-current="${screen === 'configuracion' ? 'page' : 'false'}"
+        title="Configuración"
       >
         ${icon('settings', 18)}
         <span>Configuración</span>

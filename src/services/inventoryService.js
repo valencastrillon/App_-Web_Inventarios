@@ -1,6 +1,6 @@
 /**
  * @fileoverview Capa de Servicios de Negocio para Inventario, Movimientos,
- * Conversión de Kits/Cajas de Proveedores, Carga Masiva y Sedes/Sucursales.
+ * Conversión de Kits/Cajas, Carga Masiva y Sedes/Sucursales.
  */
 
 import { store } from '../core/store.js';
@@ -192,46 +192,6 @@ export function saveCategoryDraft() {
 }
 
 /**
- * Crea un nuevo proveedor homologado.
- */
-export function saveSupplierDraft() {
-  const state = store.getState();
-  const draft = state.supplierDraft;
-  if (!draft.name.trim()) return;
-
-  const newSup = {
-    id: `PRV-0${state.suppliers.length + 1}`,
-    name: draft.name.trim(),
-    cuit: draft.cuit.trim(),
-    category: draft.category,
-    contact: draft.contact.trim() || 'Ejecutivo de Cuentas',
-    email: draft.email.trim() || 'contacto@proveedor.com.ar',
-    phone: draft.phone.trim(),
-    leadTimeDays: Number(draft.leadTimeDays) || 3,
-    rating: 4.7,
-    active: true,
-  };
-
-  store.setState({
-    suppliers: [newSup, ...state.suppliers],
-    drawer: null,
-  });
-  store.showToast(`Proveedor "${newSup.name}" homologado`);
-}
-
-/**
- * Alterna el estado activo/pausado de un proveedor.
- * @param {string} supplierId
- */
-export function toggleSupplierActive(supplierId) {
-  const state = store.getState();
-  store.setState({
-    suppliers: state.suppliers.map((s) => (s.id === supplierId ? { ...s, active: !s.active } : s)),
-  });
-  store.showToast('Estado de proveedor actualizado');
-}
-
-/**
  * Importa un lote de productos desde la tabla editable o archivo CSV.
  * @param {Array<object>} rows
  */
@@ -251,7 +211,7 @@ export function importProductsBatch(rows) {
 }
 
 /**
- * Ejecuta la conversión de Kits o Cajas de Proveedores a unidades individuales,
+ * Ejecuta la conversión de Kits o Cajas a unidades individuales,
  * descontando las cajas de origen, sumando las unidades destino y generando los
  * dos movimientos de trazabilidad (Egreso de bulto + Ingreso de unidades).
  */

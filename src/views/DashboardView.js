@@ -36,7 +36,6 @@ export function renderDashboardView(state) {
     products,
     movements,
     branches,
-    globalSearch,
     branchLocation,
     dashboardState,
   } = state;
@@ -76,12 +75,7 @@ export function renderDashboardView(state) {
   const categories = ['Todas', ...Array.from(new Set(products.map((p) => p.category)))];
 
   const filteredProducts = branchProducts.filter((p) => {
-    const query = globalSearch.trim().toLowerCase();
-    const matchesSearch =
-      !query ||
-      p.name.toLowerCase().includes(query) ||
-      p.sku.toLowerCase().includes(query) ||
-      p.location.toLowerCase().includes(query);
+    const matchesSearch = true;
     const matchesCategory = categoryFilter === 'Todas' || p.category === categoryFilter;
     const status = stockStatus(p);
     const matchesStatus = statusFilter === 'Todos' || status === statusFilter;

@@ -15,12 +15,12 @@ import { renderProductIcon } from './DashboardView.js';
  * @returns {string} HTML string
  */
 export function renderProductsView(state) {
-  const { products, globalSearch, branchLocation, productsViewState: v } = state;
+  const { products, branchLocation, productsViewState: v } = state;
   const pageSize = 8;
 
   const categories = ['Todas', ...Array.from(new Set(products.map((p) => p.category)))];
 
-  const effectiveQuery = (v.search || globalSearch).trim().toLowerCase();
+  const effectiveQuery = v.search.trim().toLowerCase();
 
   const filtered = products
     .filter((p) => {

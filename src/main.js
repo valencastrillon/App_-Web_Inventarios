@@ -29,12 +29,10 @@ import {
   saveCategoryDraft,
   saveMovementDraft,
   saveProductDraft,
-  saveSupplierDraft,
-  toggleSupplierActive,
 } from './services/inventoryService.js';
 import { renderConversionView } from './views/ConversionView.js';
 import { renderDashboardView } from './views/DashboardView.js';
-import { renderCategoriesView, renderSuppliersView } from './views/DirectoriesView.js';
+import { renderCategoriesView } from './views/DirectoriesView.js';
 import { renderLoginView } from './views/LoginView.js';
 import { renderMovementsView } from './views/MovementsView.js';
 import { renderProductsView } from './views/ProductsView.js';
@@ -60,8 +58,6 @@ function renderCurrentScreen(state) {
       return renderMovementsView(state);
     case 'categorias':
       return renderCategoriesView(state);
-    case 'proveedores':
-      return renderSuppliersView(state);
     case 'reportes':
       return renderReportsView(state);
     case 'configuracion':
@@ -101,22 +97,10 @@ function renderApp() {
       ${renderToast(state.toast)}
     `;
   } else {
-    const shellClasses = [
-      'app-shell',
-      state.sidebarVisible ? 'sidebar-visible' : 'sidebar-hidden',
-      state.mobileOpen ? 'mobile-open' : '',
-    ]
-      .filter(Boolean)
-      .join(' ');
+    const shellClasses = 'app-shell';
 
     rootEl.innerHTML = `
       <div class="${shellClasses}">
-        <div
-          class="sidebar-backdrop"
-          data-action="hide-sidebar"
-          aria-hidden="true"
-        ></div>
-
         ${renderSidebar(state)}
 
         <div class="main-area">
@@ -221,18 +205,6 @@ rootEl.addEventListener('click', (event) => {
       break;
     }
 
-    // Mostrar / Ocultar el menú lateral
-    case 'toggle-sidebar': {
-      const next = !state.sidebarVisible;
-      store.setState({ sidebarVisible: next, mobileOpen: next });
-      break;
-    }
-
-    case 'hide-sidebar': {
-      store.setState({ sidebarVisible: false, mobileOpen: false });
-      break;
-    }
-
     // Modo Oscuro / Claro
     case 'set-theme': {
       const nextTheme = actionBtn.dataset.theme;
@@ -325,7 +297,7 @@ rootEl.addEventListener('click', (event) => {
       break;
     }
 
-    // Drawers de Productos, Movimientos, Categorías, Proveedores y Carga Masiva
+    // Drawers de Productos, Movimientos, Categorías y Carga Masiva
     case 'new-product': {
       openNewProductDrawer();
       break;
@@ -390,22 +362,6 @@ rootEl.addEventListener('click', (event) => {
 
     case 'save-category': {
       saveCategoryDraft();
-      break;
-    }
-
-    case 'open-supplier-drawer': {
-      store.setState({ drawer: 'supplier' });
-      break;
-    }
-
-    case 'save-supplier': {
-      saveSupplierDraft();
-      break;
-    }
-
-    case 'toggle-supplier-active': {
-      const supId = actionBtn.dataset.supplierId;
-      if (supId) toggleSupplierActive(supId);
       break;
     }
 
@@ -614,7 +570,7 @@ rootEl.addEventListener('click', (event) => {
       break;
     }
 
-    // Conversión de Kits / Cajas de Proveedores
+    // Conversión de Kits / Cajas
     case 'toggle-custom-conversion': {
       store.setState({
         conversionState: {
@@ -736,12 +692,6 @@ rootEl.addEventListener('input', (event) => {
   const target = event.target;
   const state = store.getState();
 
-  // Buscador global en el Header
-  if (target.dataset.input === 'global-search') {
-    store.setState({ globalSearch: target.value });
-    return;
-  }
-
   // Buscador de catálogo de productos
   if (target.dataset.input === 'products-search') {
     store.setState({
@@ -778,7 +728,7 @@ rootEl.addEventListener('input', (event) => {
     return;
   }
 
-  // Inputs de borradores de Drawers (productDraft, movementDraft, categoryDraft, supplierDraft, branchDraft)
+  // Inputs de borradores de Drawers (producto, movimiento, categoría y sede)
   if (target.dataset.draft && target.dataset.field) {
     const draftName = target.dataset.draft;
     const field = target.dataset.field;
@@ -952,20 +902,13 @@ rootEl.addEventListener('submit', (event) => {
   }
 });
 
-/* Atajos de teclado globales (⌘K / Ctrl+K y Escape) */
+/* Atajo global para cerrar drawers y menús desplegables */
 window.addEventListener('keydown', (event) => {
-  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
-    event.preventDefault();
-    const input = document.getElementById('global-search-input');
-    if (input) input.focus();
-  }
   if (event.key === 'Escape') {
     const state = store.getState();
-    if (state.drawer || state.mobileOpen || state.sidebarVisible || state.branchMenuOpen) {
+    if (state.drawer || state.branchMenuOpen) {
       store.setState({
         drawer: null,
-        mobileOpen: false,
-        sidebarVisible: false,
         branchMenuOpen: false,
       });
     }

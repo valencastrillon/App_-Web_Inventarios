@@ -3,7 +3,6 @@
  * - Alta / Edición de Producto (`product`)
  * - Registro de Movimiento de Stock (`movement`)
  * - Nueva Categoría (`category`)
- * - Homologación de Proveedor (`supplier`)
  * - Gestión de Sedes y Sucursales de Comercial Norte SRL (`branches`)
  * - Carga Masiva de Productos (`import` -> delegado a `BulkImportDrawer.js`)
  */
@@ -35,10 +34,6 @@ export function renderActiveDrawer(state) {
 
   if (drawer === 'category') {
     return renderCategoryDrawer(state);
-  }
-
-  if (drawer === 'supplier') {
-    return renderSupplierDrawer(state);
   }
 
   if (drawer === 'branches') {
@@ -429,131 +424,6 @@ function renderCategoryDrawer(state) {
         </button>
         <button type="button" class="btn btn-primary" data-action="save-category">
           ${icon('save', 15)} Guardar categoría
-        </button>
-      </div>
-    </aside>
-  </div>`;
-}
-
-function renderSupplierDrawer(state) {
-  const { supplierDraft: d, categories } = state;
-
-  return `<div class="drawer-backdrop" data-action="close-drawer">
-    <aside
-      class="drawer"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Homologar proveedor"
-      data-stop-propagation="true"
-    >
-      <div class="drawer-header">
-        <div class="drawer-title">Homologar nuevo proveedor</div>
-        <button type="button" class="icon-btn" data-action="close-drawer" aria-label="Cerrar">
-          ${icon('x', 18)}
-        </button>
-      </div>
-
-      <div class="drawer-body">
-        <div class="field">
-          <label for="sup-name">Razón Social *</label>
-          <input
-            id="sup-name"
-            class="input"
-            value="${escapeHtml(d.name)}"
-            placeholder="Ej. Metalúrgica del Oeste S.A."
-            data-draft="supplierDraft"
-            data-field="name"
-          />
-        </div>
-
-        <div class="form-grid">
-          <div class="field">
-            <label for="sup-cuit">CUIT</label>
-            <input
-              id="sup-cuit"
-              class="input"
-              value="${escapeHtml(d.cuit)}"
-              data-draft="supplierDraft"
-              data-field="cuit"
-            />
-          </div>
-          <div class="field">
-            <label for="sup-cat">Rubro principal</label>
-            <select
-              id="sup-cat"
-              class="select"
-              data-draft="supplierDraft"
-              data-field="category"
-            >
-              ${categories
-                .map(
-                  (c) =>
-                    `<option value="${escapeHtml(c.name)}" ${
-                      d.category === c.name ? 'selected' : ''
-                    }>${escapeHtml(c.name)}</option>`
-                )
-                .join('')}
-            </select>
-          </div>
-        </div>
-
-        <div class="form-grid">
-          <div class="field">
-            <label for="sup-contact">Ejecutivo de cuenta</label>
-            <input
-              id="sup-contact"
-              class="input"
-              value="${escapeHtml(d.contact)}"
-              placeholder="Nombre y Apellido"
-              data-draft="supplierDraft"
-              data-field="contact"
-            />
-          </div>
-          <div class="field">
-            <label for="sup-lead">Lead time (días)</label>
-            <input
-              id="sup-lead"
-              class="input"
-              type="number"
-              min="1"
-              value="${escapeHtml(d.leadTimeDays)}"
-              data-draft="supplierDraft"
-              data-field="leadTimeDays"
-            />
-          </div>
-        </div>
-
-        <div class="form-grid">
-          <div class="field">
-            <label for="sup-email">Email de pedidos</label>
-            <input
-              id="sup-email"
-              class="input"
-              type="email"
-              value="${escapeHtml(d.email)}"
-              data-draft="supplierDraft"
-              data-field="email"
-            />
-          </div>
-          <div class="field">
-            <label for="sup-phone">Teléfono</label>
-            <input
-              id="sup-phone"
-              class="input"
-              value="${escapeHtml(d.phone)}"
-              data-draft="supplierDraft"
-              data-field="phone"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div class="drawer-footer">
-        <button type="button" class="btn btn-secondary" data-action="close-drawer">
-          Cancelar
-        </button>
-        <button type="button" class="btn btn-primary" data-action="save-supplier">
-          ${icon('save', 15)} Homologar proveedor
         </button>
       </div>
     </aside>

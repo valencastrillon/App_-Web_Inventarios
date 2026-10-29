@@ -1,7 +1,7 @@
 /**
  * @fileoverview Catálogo de datos simulados (Mock Data) para Comercial Norte SRL.
  * Incluye sucursales, productos iniciales, recetas de conversión de kits/cajas,
- * categorías, proveedores, movimientos históricos, usuarios y series analíticas.
+ * categorías, movimientos históricos, usuarios y series analíticas.
  */
 
 export const initialBranches = [
@@ -64,7 +64,7 @@ export const initialProducts = [
   { id: '10', name: 'Reflector LED Exterior 100W', subtitle: 'IP66 · Luz fría 6500K', sku: 'ELE-0771', category: 'Electricidad', stock: 4, minStock: 18, unit: 'unid.', cost: 14300, price: 22900, location: 'Depósito Sur · Sector A', branch: 'Depósito Sur', updatedAt: 'hoy, 09:15', icon: 'lamp' },
   { id: '11', name: 'Disco de Corte Metal 115mm (Pack x10)', subtitle: 'Espesor 1.0mm · Acero inox', sku: 'FER-0552', category: 'Ferretería', stock: 115, minStock: 30, unit: 'packs', cost: 8200, price: 13500, location: 'Depósito Central · Pasillo A-3', branch: 'CD Norte', updatedAt: 'hace 3 días', icon: 'disc' },
   { id: '12', name: 'Rodillo Antigota Lana Natural 22cm', subtitle: 'Pelo corto · Epoxi y sintéticos', sku: 'PIN-0098', category: 'Pinturería', stock: 51, minStock: 20, unit: 'unid.', cost: 4100, price: 6900, location: 'Depósito Sur · Sector C', branch: 'Depósito Sur', updatedAt: 'ayer', icon: 'paint' },
-  { id: '13', name: 'Caja Mayorista Guantes Nitrilo (x24 Pares)', subtitle: 'Bulto cerrado proveedor · Talle L', sku: 'KIT-0119', category: 'Seguridad Ind.', stock: 8, minStock: 3, unit: 'cajas', cost: 52000, price: 89000, location: 'Depósito Central · Pasillo D-0', branch: 'CD Norte', updatedAt: 'hace 1 h', icon: 'shirt' },
+  { id: '13', name: 'Caja Mayorista Guantes Nitrilo (x24 Pares)', subtitle: 'Bulto cerrado · Talle L', sku: 'KIT-0119', category: 'Seguridad Ind.', stock: 8, minStock: 3, unit: 'cajas', cost: 52000, price: 89000, location: 'Depósito Central · Pasillo D-0', branch: 'CD Norte', updatedAt: 'hace 1 h', icon: 'shirt' },
   { id: '14', name: 'Caja Master Llaves Térmicas 2x25A (x12 Unid.)', subtitle: 'Pack cerrado ElectroSur · Curva C', sku: 'KIT-0334', category: 'Electricidad', stock: 10, minStock: 4, unit: 'cajas', cost: 76000, price: 118000, location: 'Depósito Central · Pasillo B-0', branch: 'CD Norte', updatedAt: 'hace 3 h', icon: 'cable' },
   { id: '15', name: 'Kit Obra Soldadura + Discos Inox (Combo)', subtitle: 'Pack promocional ferretería', sku: 'KIT-0552', category: 'Ferretería', stock: 14, minStock: 5, unit: 'kits', cost: 38000, price: 59000, location: 'Depósito Central · Pasillo A-0', branch: 'Sucursal Centro', updatedAt: 'ayer', icon: 'disc' },
 ];
@@ -78,7 +78,7 @@ export const initialKitRecipes = [
     sourceUnitLabel: 'Caja cerrada (24 pares)',
     targetProductId: '5',
     conversionFactor: 24,
-    notes: 'Abre bulto mayorista del proveedor e ingresa 24 pares individuales al stock de venta.',
+    notes: 'Abre bulto mayorista e ingresa 24 pares individuales al stock de venta.',
   },
   {
     id: 'KIT-R2',
@@ -88,7 +88,7 @@ export const initialKitRecipes = [
     sourceUnitLabel: 'Caja Master (12 unidades)',
     targetProductId: '6',
     conversionFactor: 12,
-    notes: 'Fracciona caja master de proveedor en unidades individuales para mostrador.',
+    notes: 'Fracciona caja master en unidades individuales para mostrador.',
   },
   {
     id: 'KIT-R3',
@@ -98,7 +98,7 @@ export const initialKitRecipes = [
     sourceUnitLabel: 'Kit cerrado (5 packs x10)',
     targetProductId: '11',
     conversionFactor: 5,
-    notes: 'Separa los packs de discos incluidos en el kit promocional de proveedor.',
+    notes: 'Separa los packs de discos incluidos en el kit promocional.',
   },
 ];
 
@@ -108,13 +108,6 @@ export const initialCategories = [
   { id: 'CAT-03', name: 'Pinturería', code: 'PIN', description: 'Látex interior/exterior, impermeabilizantes y accesorios', targetMargin: 45, location: 'Depósito Sur · Sector C' },
   { id: 'CAT-04', name: 'Seguridad Ind.', code: 'SEG', description: 'EPP certificado: cascos, guantes, protección visual y auditiva', targetMargin: 48, location: 'Depósito Central · Pasillo D' },
   { id: 'CAT-05', name: 'Construcción', code: 'CON', description: 'Selladores, adhesivos técnicos y fijaciones químicas', targetMargin: 36, location: 'Depósito Norte · Estante 3' },
-];
-
-export const initialSuppliers = [
-  { id: 'PRV-01', name: 'Distribuidora Andina S.A.', cuit: '30-71239481-9', category: 'Ferretería', contact: 'Roberto Gómez', email: 'ventas@andina-ind.com.ar', phone: '+54 11 4756-2290', leadTimeDays: 3, rating: 4.8, active: true },
-  { id: 'PRV-02', name: 'ElectroSur Mayorista', cuit: '30-68910234-5', category: 'Electricidad', contact: 'Mariana Torres', email: 'pedidos@electrosur.com.ar', phone: '+54 11 4308-7712', leadTimeDays: 2, rating: 4.6, active: true },
-  { id: 'PRV-03', name: 'SegurMax Industrial', cuit: '30-70998123-1', category: 'Seguridad Ind.', contact: 'Javier Quiroga', email: 'logistica@segurmax.com.ar', phone: '+54 11 5219-0041', leadTimeDays: 5, rating: 4.2, active: true },
-  { id: 'PRV-04', name: 'Química & Pinturas del Plata', cuit: '33-65441209-9', category: 'Pinturería', contact: 'Lucía Fernández', email: 'comercial@qpplata.com.ar', phone: '+54 11 4222-8910', leadTimeDays: 4, rating: 4.9, active: true },
 ];
 
 export const initialMovements = [

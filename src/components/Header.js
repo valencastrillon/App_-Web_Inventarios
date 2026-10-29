@@ -1,6 +1,6 @@
 /**
- * @fileoverview Barra Superior (Header / Topbar) con botón de menú colapsable,
- * selector enriquecido de Sedes/Sucursales, buscador global ⌘K y alertas críticas.
+ * @fileoverview Barra Superior (Header / Topbar) con selector de
+ * Sedes/Sucursales y alertas críticas.
  */
 
 import { escapeHtml, stockStatus } from '../core/formatters.js';
@@ -9,10 +9,9 @@ import { icon } from '../core/icons.js';
 const SCREEN_TITLES = {
   dashboard: 'Resumen general',
   productos: 'Catálogo de productos',
-  conversion: 'Conversión de kits y cajas (Proveedores)',
+  conversion: 'Conversión de kits y cajas',
   movimientos: 'Movimientos de stock',
   categorias: 'Categorías y ubicaciones',
-  proveedores: 'Directorio de proveedores',
   reportes: 'Reportes y analítica',
   configuracion: 'Configuración del sistema',
 };
@@ -23,16 +22,7 @@ const SCREEN_TITLES = {
  * @returns {string} HTML string
  */
 export function renderHeader(state) {
-  const {
-    screen,
-    globalSearch,
-    branchLocation,
-    branches,
-    products,
-    theme,
-    sidebarVisible,
-    branchMenuOpen,
-  } = state;
+  const { screen, branchLocation, branches, products, theme, branchMenuOpen } = state;
 
   const lowStockCount = products.filter((p) => stockStatus(p) !== 'En stock').length;
   const currentBranch = branches.find((b) => b.name === branchLocation) || branches[0];
@@ -93,17 +83,6 @@ export function renderHeader(state) {
     : '';
 
   return `<header class="topbar">
-    <button
-      type="button"
-      class="menu-toggle-btn ${sidebarVisible ? 'active' : ''}"
-      aria-label="Abrir o cerrar menú de navegación"
-      data-action="toggle-sidebar"
-      title="${sidebarVisible ? 'Ocultar menú lateral' : 'Desplegar menú de secciones'}"
-    >
-      ${icon('menu', 18)}
-      <span class="menu-toggle-label">Menú</span>
-    </button>
-
     <div class="breadcrumbs">
       <button
         type="button"
@@ -131,19 +110,6 @@ export function renderHeader(state) {
       </div>
       ${icon('chevronRight', 14)}
       <strong>${escapeHtml(SCREEN_TITLES[screen] || 'Dashboard')}</strong>
-    </div>
-
-    <div class="topbar-search">
-      ${icon('search', 16)}
-      <input
-        id="global-search-input"
-        type="search"
-         value="${escapeHtml(globalSearch)}"
-        placeholder="Buscar por nombre, código SKU o ubicación..."
-        aria-label="Buscar productos por nombre o SKU"
-        data-input="global-search"
-      />
-      <span class="kbd-hint">⌘K</span>
     </div>
 
     <div class="topbar-actions">

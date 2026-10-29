@@ -10,7 +10,6 @@ import {
   initialKitRecipes,
   initialMovements,
   initialProducts,
-  initialSuppliers,
   initialUsers,
 } from '../data/mockData.js';
 import { getInitialParam } from './formatters.js';
@@ -21,7 +20,6 @@ const VALID_SCREENS = [
   'conversion',
   'movimientos',
   'categorias',
-  'proveedores',
   'reportes',
   'configuracion',
 ];
@@ -104,9 +102,6 @@ const state = {
   // Autenticación y navegación
   authenticated: resolveInitialAuth(),
   screen: resolveInitialScreen(),
-  globalSearch: '',
-  mobileOpen: false,
-  sidebarVisible: getInitialParam('sidebar') === 'open',
   branchLocation: getInitialParam('branch') || 'Todas las sedes',
   theme: initialTheme,
   branchMenuOpen: false,
@@ -114,7 +109,6 @@ const state = {
   // Datos principales del dominio
   products: [...initialProducts],
   categories: [...initialCategories],
-  suppliers: [...initialSuppliers],
   movements: [...initialMovements],
   branches: [...initialBranches],
   kitRecipes: [...initialKitRecipes],
@@ -146,7 +140,7 @@ const state = {
     menuRowId: null,
   },
 
-  // Estado del Conversor de Kits / Cajas (Proveedores)
+  // Estado del conversor de kits y cajas
   conversionState: {
     selectedRecipeId: initialKitRecipes[0]?.id || '',
     boxesToConvert: 1,
@@ -217,15 +211,6 @@ const state = {
     description: '',
     targetMargin: '40',
     location: 'Depósito Central · Pasillo E',
-  },
-  supplierDraft: {
-    name: '',
-    cuit: '30-71000000-1',
-    category: 'Ferretería',
-    contact: '',
-    email: '',
-    phone: '+54 11 ',
-    leadTimeDays: '3',
   },
   branchDraft: {
     name: '',

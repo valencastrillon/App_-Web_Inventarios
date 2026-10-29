@@ -1,6 +1,6 @@
 /**
- * @fileoverview Vista de Conversión de Kits / Cajas de Proveedores (ConversionView).
- * Permite seleccionar una receta homologada de proveedor o configurar una conversión
+ * @fileoverview Vista de Conversión de Kits / Cajas (ConversionView).
+ * Permite seleccionar una receta homologada o configurar una conversión
  * libre para desglosar bultos mayoristas en unidades individuales de mostrador.
  */
 
@@ -8,12 +8,12 @@ import { escapeHtml, formatCurrency, formatNumber } from '../core/formatters.js'
 import { icon } from '../core/icons.js';
 
 /**
- * Renderiza la vista de conversión de kits y cajas de proveedores.
+ * Renderiza la vista de conversión de kits y cajas.
  * @param {object} state Estado global.
  * @returns {string} HTML string
  */
 export function renderConversionView(state) {
-  const { products, kitRecipes, suppliers, branches, conversionState: conv } = state;
+  const { products, kitRecipes, branches, conversionState: conv } = state;
 
   const selectableBranches = branches.filter((b) => b.id !== 'all');
   const activeRecipe =
@@ -38,21 +38,21 @@ export function renderConversionView(state) {
       <div>
         <div class="conversion-badge-top">
           ${icon('truck', 14)}
-          <span>Módulo de Fraccionamiento Mayorista · Proveedores</span>
+          <span>Módulo de fraccionamiento mayorista</span>
         </div>
         <h1 class="page-title">Convertir Kits o Cajas a Unidades</h1>
         <p class="page-subtitle">
-          Desglosá cajas master, bultos cerrados o kits promocionales recibidos de proveedores en unidades individuales listas para venta o despacho.
+          Desglosá cajas master, bultos cerrados o kits promocionales en unidades individuales listas para venta o despacho.
         </p>
       </div>
     </div>
 
     <div class="conversion-layout">
-      <!-- Columna Izquierda: Recetas de Proveedores -->
+      <!-- Columna Izquierda: Recetas de empaque -->
       <section class="panel">
         <div class="panel-header">
           <div>
-            <div class="panel-title">Plantillas de conversión por proveedor</div>
+            <div class="panel-title">Plantillas de conversión por origen</div>
             <div class="panel-subtitle">
               Seleccioná una relación de empaque homologada o creá una conversión libre
             </div>
@@ -247,7 +247,7 @@ export function renderConversionView(state) {
           <div class="conversion-cost-note">
             ${icon('packageCheck', 16)}
             <span>
-              Costo unitario resultante por unidad desglosada: <strong>${formatCurrency(unitCostEstimated)}</strong> (calculado sobre costo de caja ${formatCurrency(sourceProduct?.cost || 0)}). Proveedores activos vinculados: ${suppliers.filter((s) => s.active).length}.
+              Costo unitario resultante por unidad desglosada: <strong>${formatCurrency(unitCostEstimated)}</strong> (calculado sobre costo de caja ${formatCurrency(sourceProduct?.cost || 0)}).
             </span>
           </div>
 
