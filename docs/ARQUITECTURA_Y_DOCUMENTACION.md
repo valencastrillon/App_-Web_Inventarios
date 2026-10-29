@@ -6,7 +6,7 @@
 >
 > El header ya no contiene buscador global, lupa, atajo `⌘K` ni botón “Menú”. El filtro de Productos permanece en `src/views/ProductsView.js`.
 >
-> El sidebar es un overlay: inicia colapsado a 64 px, se expande por `:hover`/`:focus-within`, muestra textos/badges durante la expansión y no modifica el margen del contenido. Se eliminó el estado manual `sidebarVisible`/`mobileOpen` y el botón de cierre.
+> El sidebar reserva un riel de 72 px: inicia colapsado, se expande a 260 px por `:hover`/`:focus-within`, muestra textos/badges durante la expansión y no modifica la posición del contenido. Se eliminó el estado manual `sidebarVisible`/`mobileOpen` y el botón de cierre.
 >
 > Se eliminó la pantalla y el flujo exclusivo de Proveedores: ruta, ítem lateral, vista, drawer, acciones y servicios de alta/estado. La conversión de kits permanece; su contador se calcula con SKUs `KIT-*` y es independiente del módulo eliminado.
 
@@ -19,6 +19,14 @@ Este documento describe en detalle la **arquitectura profesional por capas** imp
 ---
 
 ## 1. Visión General de la Arquitectura
+
+### Corrección del layout del sidebar — 2026-10-28
+
+Se corrigió el solapamiento del contenido con la navegación lateral. El shell ahora reserva `--sidebar-rail-width: 72px` mediante `padding-left` en `.app-shell`; el contenido comienza después del riel y no queda debajo de él. El sidebar sigue siendo `position: fixed`, por lo que su expansión a `--sidebar-expanded-width: 260px` ocurre como overlay y no desplaza la página.
+
+La implementación quedó centralizada en `src/styles/variables.css` y `src/styles/polish.css`: tokens de ancho/sombra para ambos temas, transición de 220 ms, íconos SVG de 20 px, botones de 40 px, textos truncados con `white-space: nowrap`, badges convertidos en puntos al colapsar, secciones sin espacios vacíos y footer con avatar centrado/logout visible únicamente al expandir. Los botones de navegación mantienen `title` como tooltip nativo en estado colapsado.
+
+La evidencia visual se encuentra en [`docs/screenshots/sidebar-before-1280.png`](screenshots/sidebar-before-1280.png) y [`docs/screenshots/sidebar-after-1280.png`](screenshots/sidebar-after-1280.png). La verificación cubre 1280, 1440 y 1920 px, temas claro y oscuro, y todas las pantallas principales; se revisó que breadcrumb/título estén completos, que no exista scroll horizontal y que la expansión no mueva el contenido.
 
 ### Corrección visual aplicada en esta iteración
 
@@ -119,7 +127,7 @@ Funciones puras que reciben el `state` (o `props`) y devuelven fragmentos HTML s
 
 | Archivo | Propósito y Responsabilidad | Qué implementa |
 | :--- | :--- | :--- |
-| [`src/components/Sidebar.js`](../src/components/Sidebar.js) | **Sidebar de navegación dinámica**. | • Íconos y contadores dinámicos.<br>• Colapsado a 64 px y expandido por hover/foco como overlay.<br>• Selector claro/oscuro y avatar/logout. |
+| [`src/components/Sidebar.js`](../src/components/Sidebar.js) | **Sidebar de navegación dinámica**. | • Íconos y contadores dinámicos.<br>• Riel reservado de 72 px y expansión a 260 px por hover/foco como overlay.<br>• Selector claro/oscuro y avatar/logout alineados. |
 | [`src/components/Header.js`](../src/components/Header.js) | **Barra Superior (Topbar)**. | • Selector de Sedes/Sucursales.<br>• Cambio rápido de tema, alertas, carga masiva y alta de producto. |
 | [`src/components/BulkImportDrawer.js`](../src/components/BulkImportDrawer.js) | **Drawer de Carga Masiva de Productos**. | • **Pestaña 1 (Tabla / Formulario interactivo)**: Grilla editable en vivo para cargar o pegar múltiples productos indicando nombre, SKU, categoría, sede, stock, mínimo, costo, precio y ubicación, con cálculo en vivo de unidades y valorización.<br>• **Pestaña 2 (Importar CSV/Excel)**: Lector de archivos `.csv` con previsualización y descarga de plantilla modelo. |
 | [`src/components/AccountSecurityPanel.js`](../src/components/AccountSecurityPanel.js) | **Panel de Control de Usuarios y Cambio de Contraseña**. | • Lista de usuarios con estado `Habilitado` / `Inhabilitado`, selector de rol y botón directo para **Habilitar / Inhabilitar** acceso.<br>• Formulario desplegable para dar de alta nuevos operadores.<br>• Formulario de **Cambio de Contraseña** con visor mostrar/ocultar y medidor visual de fortaleza de 4 barras. |

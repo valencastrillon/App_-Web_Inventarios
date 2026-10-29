@@ -148,6 +148,8 @@ export function renderSidebar(state) {
         type="button"
         class="nav-item"
         data-action="show-help-toast"
+        title="Centro de ayuda"
+        aria-label="Centro de ayuda"
       >
         ${icon('circleHelp', 18)}
         <span>Centro de ayuda</span>

@@ -7,7 +7,6 @@ import { renderDataTable } from '../components/DataTable.js';
 import { renderStatusBadge } from '../components/StatusBadge.js';
 import { escapeHtml, formatCurrency, formatNumber, stockStatus } from '../core/formatters.js';
 import { icon } from '../core/icons.js';
-import { renderProductIcon } from './DashboardView.js';
 
 /**
  * Renderiza la vista completa del catálogo de productos.
@@ -50,7 +49,6 @@ export function renderProductsView(state) {
       key: 'product',
       header: 'Artículo',
       render: (p) => `<div class="product-cell">
-        <div class="product-thumb">${renderProductIcon(p.icon)}</div>
         <div>
           <div class="product-name">${escapeHtml(p.name)}</div>
           <div class="product-sub">${escapeHtml(p.subtitle)}</div>
@@ -156,7 +154,7 @@ export function renderProductsView(state) {
     )
     .join('');
 
-  return `<div class="page">
+  return `<div class="page products-page">
     <div class="page-header">
       <div>
         <h1 class="page-title">Catálogo de productos</h1>
