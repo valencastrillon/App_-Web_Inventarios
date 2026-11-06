@@ -1,4 +1,4 @@
-export const checkRole = (rolesPermitidos) => {
+export const roleMiddleware = (rolesPermitidos) => {
     return (req, res, next) => {
         // 1. Verificamos que la información del usuario exista en la petición
         if (!req.user || !req.user.rol_id) {

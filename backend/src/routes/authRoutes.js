@@ -1,15 +1,10 @@
 import { Router } from 'express';
+import { login, loginWithGoogle } from '../controllers/authController.js';
 
 const router = Router();
 
-// Ruta de ejemplo para login
-router.post('/login', (req, res) => {
-    res.json({ mensaje: 'Endpoint de inicio de sesión' });
-});
-
-// Ruta de ejemplo para registro
-router.post('/register', (req, res) => {
-    res.json({ mensaje: 'Endpoint de registro de usuario' });
-});
+// Definición de endpoints
+router.post('/login', login);
+router.get('/google', loginWithGoogle);
 
 export default router;

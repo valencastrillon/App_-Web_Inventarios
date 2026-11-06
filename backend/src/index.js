@@ -1,14 +1,19 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import categoriaRoutes from './categoriaRoutes.js';
+import cors from 'cors';
+import categoriaRoutes from './routes/categoriaRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import { supabase } from './supabaseClient.js';
+import productoRoutes from './routes/productoRoutes.js';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+
+// Middleware para habilitar CORS (Permite peticiones desde el frontend estático)
+app.use(cors());
 
 // Middleware para procesar JSON en las peticiones
 app.use(express.json());
@@ -40,6 +45,7 @@ app.get('/health', async (req, res) => {
 app.use('/api/categorias', categoriaRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/productos', productoRoutes);
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);

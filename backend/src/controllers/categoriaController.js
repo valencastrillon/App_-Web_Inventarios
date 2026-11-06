@@ -1,66 +1,56 @@
 import { supabase } from '../supabaseClient.js';
 
-// 1. Obtener todas las categorías
-export const obtenerCategorias = async (req, res) => {
+// Obtener todas las categorías
+export const getCategorias = async (req, res) => {
     try {
         const { data, error } = await supabase.from('categorias').select('*');
-
-        if (error) throw error;
-        return res.status(200).json(data);
-    } catch (error) {
-        return res.status(500).json({ error: error.message });
+        if (error) return res.status(400).json({ error: error.message });
+        res.status(200).json(data);
+    } catch (err) {
+        res.status(500).json({ error: 'Error al obtener categorías', details: err.message });
     }
 };
 
-// 2. Crear una nueva categoría
-export const crearCategoria = async (req, res) => {
+// Crear categoría
+export const createCategoria = async (req, res) => {
+    const { nombre, descripcion } = req.body;
     try {
-        const { nombre, descripcion } = req.body;
-
         const { data, error } = await supabase
             .from('categorias')
             .insert([{ nombre, descripcion }])
             .select();
-
-        if (error) throw error;
-        return res.status(201).json({ mensaje: 'Categoría creada con éxito', categoria: data[0] });
-    } catch (error) {
-        return res.status(500).json({ error: error.message });
+        if (error) return res.status(400).json({ error: error.message });
+        res.status(201).json({ mensaje: 'Categoría creada con éxito', categoria: data[0] });
+    } catch (err) {
+        res.status(500).json({ error: 'Error al crear categoría', details: err.message });
     }
 };
 
-// 3. Actualizar una categoría
-export const actualizarCategoria = async (req, res) => {
+// Actualizar categoría
+export const updateCategoria = async (req, res) => {
+    const { id } = req.params;
+    const { nombre, descripcion } = req.body;
     try {
-        const { id } = req.params;
-        const { nombre, descripcion } = req.body;
-
         const { data, error } = await supabase
             .from('categorias')
             .update({ nombre, descripcion })
             .eq('id', id)
             .select();
-
-        if (error) throw error;
-        return res.status(200).json({ mensaje: 'Categoría actualizada', categoria: data[0] });
-    } catch (error) {
-        return res.status(500).json({ error: error.message });
+        if (error) return res.status(400).json({ error: error.message });
+        res.status(200).json({ mensaje: 'Categoría actualizada', categoria: data[0] });
+    } catch (err) {
+        res.status(500).json({ error: 'Error al actualizar categoría', details: err.message });
     }
 };
 
-// 4. Eliminar una categoría
-export const eliminarCategoria = async (req, res) => {
+// Eliminar categoría
+export const deleteCategoria = async (req, res) => {
+    const { id } = req.params;
     try {
-        const { id } = req.params;
-
-        const { error } = await supabase
-            .from('categorias')
-            .delete()
-            .eq('id', id);
-
-        if (error) throw error;
-        return res.status(200).json({ mensaje: 'Categoría eliminada correctamente' });
-    } catch (error) {
-        return res.status(500).json({ error: error.message });
+        const { error } = await supabase.from('categorias').delete().eq('id', id);
+        if (error) return res.status(400).json({ error: error.message });
+        res.status(200).json({ mensaje: 'Categoría eliminada con éxito' });
+    } catch (err) {
+        res.status(500).json({ error: 'Error al eliminar categoría', details: err.message });
     }
 };
