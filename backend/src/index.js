@@ -6,6 +6,7 @@ import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import { supabase } from './supabaseClient.js';
 import productoRoutes from './routes/productoRoutes.js';
+import movimientoRoutes from './routes/movimientoRoutes.js';
 
 dotenv.config();
 
@@ -46,6 +47,7 @@ app.use('/api/categorias', categoriaRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/productos', productoRoutes);
+app.use('/api/movimientos', movimientoRoutes);
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
