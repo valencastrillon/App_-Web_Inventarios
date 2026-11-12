@@ -1,0 +1,34 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
+
+:root {
+  --blue: #2563eb;
+  --blue-dark: #1d4ed8;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --line: #e2e8f0;
+  --surface: #ffffff;
+  --canvas: #f4f7fb;
+  --green: #10b981;
+  --orange: #f59e0b;
+  --coral: #ef4444;
+  --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --shadow-soft: 0 2px 12px rgb(15 23 42 / 5%);
+  --shadow-hover: 0 8px 24px rgb(15 23 42 / 9%);
+  /* Layout del shell: el riel siempre reserva espacio; la expansión es overlay. */
+  --sidebar-rail-width: 72px;
+  --sidebar-expanded-width: 260px;
+  --sidebar-padding-inline: 16px;
+  --sidebar-shadow: 2px 0 12px rgb(15 23 42 / 7%);
+  --sidebar-expanded-shadow: 12px 0 35px rgb(15 23 42 / 16%);
+}
+
+:root[data-theme='dark'] {
+  --ink: #f1f5f9;
+  --muted: #94a3b8;
+  --line: #263348;
+  --surface: #131c2e;
+  --canvas: #0b1120;
+  --sidebar-shadow: 2px 0 12px rgb(0 0 0 / 22%);
+  --sidebar-expanded-shadow: 12px 0 35px rgb(0 0 0 / 38%);
+}
