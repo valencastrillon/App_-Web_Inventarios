@@ -50,4 +50,4 @@ python3 -m http.server 8000
 
 Abrí la consola del navegador y comprobá el login, la navegación, el filtro de Productos, el cambio de tema, la expansión por hover del sidebar y la conversión de kits. No deben aparecer errores de módulos ni referencias a npm/Vite/Node.
 
-La lista detallada de modificaciones y decisiones está en [`docs/ARQUITECTURA_Y_DOCUMENTACION.md`](docs/ARQUITECTURA_Y_DOCUMENTACION.md). Las capturas comparativas están en `docs/screenshots/sidebar-before-1280.png` y `docs/screenshots/sidebar-after-1280.png`.
+La documentación integral del proyecto (arquitectura, última actualización de UI, configuración de `.env`, cliente HTTP y rutas pendientes) está centralizada en [`docs/DOCUMENTACION_LOGIC_CONTROL.md`](docs/DOCUMENTACION_LOGIC_CONTROL.md). Las capturas comparativas están en `docs/screenshots/sidebar-before-1280.png` y `docs/screenshots/sidebar-after-1280.png`.

@@ -279,14 +279,6 @@ export function renderDashboardView(state) {
         </button>
         <button
           type="button"
-          class="btn btn-secondary"
-          data-action="open-import-drawer"
-        >
-          ${icon('upload', 15)}
-          <span>Carga masiva</span>
-        </button>
-        <button
-          type="button"
           class="btn btn-primary"
           data-action="open-movement-drawer"
         >

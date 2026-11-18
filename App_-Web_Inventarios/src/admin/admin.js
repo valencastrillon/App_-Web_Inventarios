@@ -7,6 +7,7 @@
 import { renderKpiCard } from '../components/KpiCard.js';
 import { escapeHtml, formatNumber } from '../core/formatters.js';
 import { icon } from '../core/icons.js';
+import { companiesApi, connectionManager } from '../services/apiRepository.js';
 import {
   initialAdminGoogleAccounts,
   initialAuditLogs,
@@ -163,6 +164,15 @@ const state = {
     avatar: 'JR',
   },
   theme: window.localStorage.getItem(STORAGE_KEYS.THEME) || 'light',
+
+  // Conectividad a Endpoints & Supabase
+  apiConnection: {
+    backendOnline: false,
+    backendLatency: 0,
+    supabaseOnline: false,
+    supabaseLatency: 0,
+    activeSource: 'local',
+  },
 
   // Navegación principal: 'companies' | 'register-company' | 'google-directory' | 'audit-log'
   activeTab: 'companies',
@@ -629,38 +639,6 @@ function renderAdminSidebar() {
         <span>Ir a App Inventarios</span>
         ${icon('externalLink', 14)}
       </a>
-
-      <div class="sidebar-theme-box" role="group" aria-label="Selector de tema visual">
-        <div class="sidebar-theme-header">
-          <span class="sidebar-theme-title">
-            ${icon(state.theme === 'dark' ? 'moon' : 'sun', 14)}
-            Apariencia visual
-          </span>
-          <span class="sidebar-theme-status">${state.theme === 'dark' ? 'Oscuro' : 'Claro'}</span>
-        </div>
-        <div class="sidebar-theme-switch">
-          <button
-            type="button"
-            class="theme-option-btn ${state.theme === 'light' ? 'active' : ''}"
-            data-action="set-theme"
-            data-theme="light"
-            aria-pressed="${state.theme === 'light'}"
-          >
-            ${icon('sun', 14)}
-            <span>Claro</span>
-          </button>
-          <button
-            type="button"
-            class="theme-option-btn ${state.theme === 'dark' ? 'active' : ''}"
-            data-action="set-theme"
-            data-theme="dark"
-            aria-pressed="${state.theme === 'dark'}"
-          >
-            ${icon('moon', 14)}
-            <span>Oscuro</span>
-          </button>
-        </div>
-      </div>
     </nav>
 
     <div class="sidebar-footer">
@@ -697,6 +675,21 @@ function renderAdminTopbar() {
 
   const selectedCompany = getSelectedCompany();
 
+  const conn = state.apiConnection || { backendOnline: false, supabaseOnline: false };
+  let statusClass = 'status-local';
+  let statusText = 'Modo Local';
+  let statusTitle = 'Operando localmente. Clic para verificar conexión con Backend :4000 y Supabase';
+
+  if (conn.backendOnline) {
+    statusClass = 'status-backend';
+    statusText = `API :4000 · ${conn.backendLatency || 12}ms`;
+    statusTitle = `Conectado a http://localhost:4000 (${conn.backendLatency}ms)`;
+  } else if (conn.supabaseOnline) {
+    statusClass = 'status-supabase';
+    statusText = `Supabase Cloud · ${conn.supabaseLatency || 45}ms`;
+    statusTitle = `Conectado a Supabase PostgreSQL (${conn.supabaseLatency}ms)`;
+  }
+
   return `<header class="topbar">
     <div class="breadcrumbs">
       <span class="admin-console-pill">
@@ -714,6 +707,18 @@ function renderAdminTopbar() {
     </div>
 
     <div class="topbar-actions">
+      <!-- Indicador de Endpoints en Admin Console -->
+      <button
+        type="button"
+        class="api-status-pill ${statusClass}"
+        data-action="check-endpoints"
+        title="${escapeHtml(statusTitle)}"
+        aria-label="Estado de conexión del sistema"
+      >
+        <span class="api-status-dot"></span>
+        <span class="api-status-label">${escapeHtml(statusText)}</span>
+      </button>
+
       <button
         type="button"
         class="icon-btn"
@@ -2601,6 +2606,22 @@ function handleClick(event) {
     return;
   }
 
+  if (action === 'check-endpoints') {
+    showToast('Comprobando conexión con endpoints...');
+    connectionManager.checkConnections().then((res) => {
+      state.apiConnection = res;
+      render();
+      if (res.backendOnline) {
+        showToast(`Conectado a Backend Local http://localhost:4000 (${res.backendLatency}ms)`);
+      } else if (res.supabaseOnline) {
+        showToast(`Conectado a Supabase Cloud (${res.supabaseLatency}ms)`);
+      } else {
+        showToast('Modo Local activo (endpoints externos offline)');
+      }
+    });
+    return;
+  }
+
   if (action === 'switch-tab') {
     state.activeTab = trigger.dataset.tab || 'companies';
     render();
@@ -3405,3 +3426,10 @@ document.addEventListener('submit', handleSubmit);
 
 syncCompaniesPersistence();
 render();
+
+// Suscribir estado de endpoints en Admin Console
+connectionManager.subscribe((conn) => {
+  state.apiConnection = conn;
+  render();
+});
+connectionManager.checkConnections();

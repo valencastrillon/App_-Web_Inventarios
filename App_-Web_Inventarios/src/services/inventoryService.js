@@ -4,6 +4,59 @@
  */
 
 import { store } from '../core/store.js';
+import {
+  categoriesApi,
+  movementsApi,
+  productsApi,
+} from './apiRepository.js';
+
+/**
+ * Sincroniza el inventario local con los datos disponibles en la API o Supabase.
+ */
+export async function syncInventoryWithApi() {
+  try {
+    const [productsRes, movementsRes, categoriesRes] = await Promise.allSettled([
+      productsApi.getAll(),
+      movementsApi.getAll(),
+      categoriesApi.getAll(),
+    ]);
+
+    const patch = {};
+
+    if (
+      productsRes.status === 'fulfilled' &&
+      productsRes.value.success &&
+      Array.isArray(productsRes.value.data) &&
+      productsRes.value.data.length > 0
+    ) {
+      patch.products = productsRes.value.data;
+    }
+
+    if (
+      movementsRes.status === 'fulfilled' &&
+      movementsRes.value.success &&
+      Array.isArray(movementsRes.value.data) &&
+      movementsRes.value.data.length > 0
+    ) {
+      patch.movements = movementsRes.value.data;
+    }
+
+    if (
+      categoriesRes.status === 'fulfilled' &&
+      categoriesRes.value.success &&
+      Array.isArray(categoriesRes.value.data) &&
+      categoriesRes.value.data.length > 0
+    ) {
+      patch.categories = categoriesRes.value.data;
+    }
+
+    if (Object.keys(patch).length > 0) {
+      store.setState(patch);
+    }
+  } catch (err) {
+    console.warn('Sincronización inicial con API no completada (usando caché local):', err);
+  }
+}
 
 /**
  * Abre el drawer para crear un nuevo producto con valores por defecto según la sede activa.
@@ -93,6 +146,17 @@ export function saveProductDraft() {
     drawer: null,
   });
 
+  // Sincronizar asíncronamente con la API REST / Supabase
+  if (state.editingProduct) {
+    productsApi.update(normalized.id, normalized).catch((err) => {
+      console.warn('Sync update producto con API falló:', err);
+    });
+  } else {
+    productsApi.create(normalized).catch((err) => {
+      console.warn('Sync create producto con API falló:', err);
+    });
+  }
+
   store.showToast(
     state.editingProduct
       ? `Producto ${normalized.sku} actualizado`
@@ -114,6 +178,12 @@ export function removeProductById(id) {
       menuRowId: null,
     },
   });
+
+  // Sincronizar eliminación asíncrona
+  productsApi.delete(id).catch((err) => {
+    console.warn('Sync delete producto con API falló:', err);
+  });
+
   if (target) {
     store.showToast(`Se eliminó "${target.name}" del catálogo`);
   }
@@ -161,6 +231,12 @@ export function saveMovementDraft() {
     drawer: null,
   });
 
+  // Sincronizar movimiento y stock
+  movementsApi.create(newMovement).catch((err) => {
+    console.warn('Sync movimiento con API falló:', err);
+  });
+  productsApi.update(product.id, { stock: Math.max(0, product.stock + delta) }).catch(() => {});
+
   store.showToast(`${draft.type} registrado para ${product.sku}`);
 }
 
@@ -185,6 +261,12 @@ export function saveCategoryDraft() {
     categories: [...state.categories, newCat],
     drawer: null,
   });
+
+  // Sincronizar categoría asíncrona
+  categoriesApi.create(newCat).catch((err) => {
+    console.warn('Sync categoría con API falló:', err);
+  });
+
   store.showToast(`Categoría "${newCat.name}" creada`);
 }
 

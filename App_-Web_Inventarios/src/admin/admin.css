@@ -1282,3 +1282,66 @@
     display: none;
   }
 }
+
+/* Indicador de Conectividad a Endpoints & Supabase en Admin */
+.api-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 11px;
+  height: 32px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.api-status-pill:hover {
+  transform: translateY(-1px);
+  border-color: var(--border-strong);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.api-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #94a3b8;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.api-status-pill.status-backend {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.28);
+  color: #059669;
+}
+.api-status-pill.status-backend .api-status-dot {
+  background: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.api-status-pill.status-supabase {
+  background: rgba(62, 207, 142, 0.1);
+  border-color: rgba(62, 207, 142, 0.32);
+  color: #059669;
+}
+.api-status-pill.status-supabase .api-status-dot {
+  background: #3ecf8e;
+  box-shadow: 0 0 0 2px rgba(62, 207, 142, 0.25);
+}
+
+.api-status-pill.status-local {
+  background: rgba(245, 158, 11, 0.07);
+  border-color: rgba(245, 158, 11, 0.25);
+  color: #d97706;
+}
+.api-status-pill.status-local .api-status-dot {
+  background: #f59e0b;
+}
