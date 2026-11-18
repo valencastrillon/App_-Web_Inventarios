@@ -180,6 +180,16 @@ const state = {
 
   // Notificación flotante (Toast)
   toast: null,
+
+  // Estado de conectividad de los Endpoints (Backend Local y Supabase)
+  apiConnection: {
+    backendOnline: false,
+    backendLatency: 0,
+    supabaseOnline: false,
+    supabaseLatency: 0,
+    activeSource: 'local', // 'backend' | 'supabase' | 'local'
+    lastChecked: null,
+  },
 };
 
 const listeners = new Set();
