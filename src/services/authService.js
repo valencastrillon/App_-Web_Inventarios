@@ -4,22 +4,12 @@
  */
 
 import { store } from '../core/store.js';
-import { authApi } from './apiRepository.js';
 
 /**
  * Inicia sesión en la plataforma (por credenciales o mediante Google Workspace SSO).
- * Si se proporcionan credenciales, autentica contra http://localhost:4000 o Supabase.
  * @param {string} [toastMessage]
- * @param {{ email?: string, password?: string }} [credentials]
  */
-export async function loginSession(toastMessage = 'Sesión iniciada correctamente', credentials = null) {
-  if (credentials && credentials.email && credentials.password) {
-    const res = await authApi.login(credentials);
-    if (res.success) {
-      toastMessage = `Sesión iniciada vía ${res.source === 'backend' ? 'API Local' : 'Supabase Cloud'}`;
-    }
-  }
-
+export function loginSession(toastMessage = 'Sesión iniciada correctamente') {
   window.sessionStorage.setItem('stockia_auth', '1');
   store.setState({
     authenticated: true,
@@ -33,10 +23,9 @@ export async function loginSession(toastMessage = 'Sesión iniciada correctament
 }
 
 /**
- * Cierra la sesión activa del operador y limpia tokens remotos y locales.
+ * Cierra la sesión activa del operador y limpia el flag de sesión.
  */
-export async function logoutSession() {
-  await authApi.logout().catch(() => {});
+export function logoutSession() {
   window.sessionStorage.removeItem('stockia_auth');
   store.setState({
     authenticated: false,

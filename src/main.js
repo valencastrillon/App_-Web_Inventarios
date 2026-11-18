@@ -28,9 +28,7 @@ import {
   saveCategoryDraft,
   saveMovementDraft,
   saveProductDraft,
-  syncInventoryWithApi,
 } from './services/inventoryService.js';
-import { connectionManager } from './services/apiRepository.js';
 import { renderConversionView } from './views/ConversionView.js';
 import { renderDashboardView } from './views/DashboardView.js';
 import { renderCategoriesView } from './views/DirectoriesView.js';
@@ -222,21 +220,6 @@ rootEl.addEventListener('click', (event) => {
 
     case 'toggle-theme': {
       store.setState({ theme: state.theme === 'dark' ? 'light' : 'dark' });
-      break;
-    }
-
-    // Comprobación manual de Endpoints y Supabase
-    case 'check-endpoints': {
-      store.showToast('Comprobando conexión con endpoints...');
-      connectionManager.checkConnections().then((res) => {
-        if (res.backendOnline) {
-          store.showToast(`Conectado a Backend Local http://localhost:4000 (${res.backendLatency}ms)`);
-        } else if (res.supabaseOnline) {
-          store.showToast(`Conectado a Supabase PostgreSQL Cloud (${res.supabaseLatency}ms)`);
-        } else {
-          store.showToast('Endpoints remotos fuera de línea. Operando en modo local resiliente.');
-        }
-      });
       break;
     }
 
@@ -830,12 +813,3 @@ window.addEventListener('keydown', (event) => {
 store.subscribe(renderApp);
 initRouter();
 renderApp();
-
-// Suscribir gestor de endpoints al Store e iniciar verificación asíncrona
-connectionManager.subscribe((status) => {
-  store.setState({ apiConnection: status });
-});
-
-connectionManager.checkConnections().then(() => {
-  syncInventoryWithApi();
-});

@@ -111,6 +111,39 @@ export function renderSidebar(state) {
         <span>Configuración</span>
       </button>
 
+      <!-- Selector de Modo Claro / Oscuro debajo de Configuración -->
+      <div class="sidebar-theme-box" role="group" aria-label="Selector de tema visual">
+        <div class="sidebar-theme-header">
+          <span class="sidebar-theme-title">
+            ${icon(theme === 'dark' ? 'moon' : 'sun', 14)}
+            Apariencia de interfaz
+          </span>
+          <span class="sidebar-theme-status">${theme === 'dark' ? 'Oscuro' : 'Claro'}</span>
+        </div>
+        <div class="sidebar-theme-switch">
+          <button
+            type="button"
+            class="theme-option-btn ${theme === 'light' ? 'active' : ''}"
+            data-action="set-theme"
+            data-theme="light"
+            aria-pressed="${theme === 'light'}"
+          >
+            ${icon('sun', 14)}
+            <span>Modo claro</span>
+          </button>
+          <button
+            type="button"
+            class="theme-option-btn ${theme === 'dark' ? 'active' : ''}"
+            data-action="set-theme"
+            data-theme="dark"
+            aria-pressed="${theme === 'dark'}"
+          >
+            ${icon('moon', 14)}
+            <span>Modo oscuro</span>
+          </button>
+        </div>
+      </div>
+
       <button
         type="button"
         class="nav-item"

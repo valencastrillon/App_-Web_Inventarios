@@ -4,8 +4,10 @@
  * - Parámetros de la razón social y depósito principal
  * - Reglas automáticas de stock y alertas
  * - Control de Usuarios (Habilitar / Inhabilitar operadores y roles)
+ * - Cambio de Contraseña y Seguridad de Cuenta (`AccountSecurityPanel`)
  */
 
+import { renderAccountSecurityPanel } from '../components/AccountSecurityPanel.js';
 import { escapeHtml } from '../core/formatters.js';
 import { icon } from '../core/icons.js';
 
@@ -153,5 +155,7 @@ export function renderSettingsView(state) {
         </div>
       </section>
     </div>
+
+    ${renderAccountSecurityPanel(state)}
   </div>`;
 }
