@@ -184,9 +184,9 @@ rootEl.addEventListener('click', (event) => {
   const actionBtn = event.target.closest('[data-action]');
   if (!actionBtn) return;
 
-  // Si hizo clic en el contenedor del drawer pero no en el backdrop mismo, ignorar close-drawer
+  // Si hizo clic dentro del modal (propagado al backdrop), ignorar close-drawer
   if (
-    actionBtn.dataset.action === 'close-drawer' &&
+    actionBtn.classList.contains('drawer-backdrop') &&
     event.target !== actionBtn &&
     event.target.closest('[data-stop-propagation="true"]')
   ) {

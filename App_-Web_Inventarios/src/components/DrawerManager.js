@@ -1,5 +1,5 @@
 /**
- * @fileoverview Gestor de Drawers Modales Laterales:
+ * @fileoverview Gestor de Modales Centrados:
  * - Alta / Edición de Producto (`product`)
  * - Registro de Movimiento de Stock (`movement`)
  * - Nueva Categoría (`category`)
@@ -48,7 +48,7 @@ function renderProductDrawer(state) {
   const selectableBranches = branches.filter((b) => b.id !== 'all');
 
   return `<div class="drawer-backdrop" data-action="close-drawer">
-    <aside
+    <div
       class="drawer"
       role="dialog"
       aria-modal="true"
@@ -221,7 +221,7 @@ function renderProductDrawer(state) {
           ${editingProduct ? 'Guardar cambios' : 'Crear producto'}
         </button>
       </div>
-    </aside>
+    </div>
   </div>`;
 }
 
@@ -230,7 +230,7 @@ function renderMovementDrawer(state) {
   const types = ['Ingreso', 'Egreso', 'Ajuste', 'Transferencia'];
 
   return `<div class="drawer-backdrop" data-action="close-drawer">
-    <aside
+    <div
       class="drawer"
       role="dialog"
       aria-modal="true"
@@ -333,7 +333,7 @@ function renderMovementDrawer(state) {
           ${icon('save', 15)} Confirmar movimiento
         </button>
       </div>
-    </aside>
+    </div>
   </div>`;
 }
 
@@ -341,7 +341,7 @@ function renderCategoryDrawer(state) {
   const { categoryDraft: d } = state;
 
   return `<div class="drawer-backdrop" data-action="close-drawer">
-    <aside
+    <div
       class="drawer"
       role="dialog"
       aria-modal="true"
@@ -426,7 +426,7 @@ function renderCategoryDrawer(state) {
           ${icon('save', 15)} Guardar categoría
         </button>
       </div>
-    </aside>
+    </div>
   </div>`;
 }
 
@@ -434,7 +434,7 @@ function renderBranchesDrawer(state) {
   const { branches, branchLocation, products } = state;
 
   return `<div class="drawer-backdrop" data-action="close-drawer">
-    <aside
+    <div
       class="drawer drawer-wide"
       role="dialog"
       aria-modal="true"
@@ -514,6 +514,6 @@ function renderBranchesDrawer(state) {
           Cerrar ventana
         </button>
       </div>
-    </aside>
+    </div>
   </div>`;
 }

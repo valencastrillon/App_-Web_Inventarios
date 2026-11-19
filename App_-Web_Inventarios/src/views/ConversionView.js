@@ -41,7 +41,7 @@ export function renderConversionView(state) {
       String(conv.responsible || '').trim()
   );
 
-  return `<div class="page">
+  return `<div class="page conversion-page">
     <div class="page-header">
       <div>
         <div class="conversion-badge-top">

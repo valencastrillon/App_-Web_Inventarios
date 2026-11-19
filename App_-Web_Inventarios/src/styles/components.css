@@ -362,30 +362,35 @@ input[type='checkbox'] {
   font-size: 13px;
 }
 
-/* Drawers y Formularios */
+/* Modales Centrados y Formularios */
 .drawer-layer {
   position: fixed;
   z-index: 60;
   inset: 0;
-  display: flex;
-  justify-content: flex-end;
-  background: rgb(15 23 42 / 32%);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgb(15 23 42 / 42%);
   backdrop-filter: blur(4px);
   animation: fade-in 0.18s ease-out;
 }
 
 .drawer-panel {
-  width: min(100%, 540px);
-  height: 100%;
+  width: min(100%, 640px);
+  max-height: min(90vh, 860px);
+  height: auto;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   background: #fff;
-  box-shadow: -14px 0 44px rgb(15 23 42 / 16%);
-  animation: slide-in 0.24s cubic-bezier(0.2, 0.75, 0.3, 1);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgb(15 23 42 / 22%);
+  animation: modal-enter 0.22s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .drawer-panel.drawer-wide {
-  width: min(100%, 860px);
+  width: min(100%, 840px);
 }
 
 .drawer-header {

@@ -205,10 +205,11 @@ const state = {
   auditLogs: Array.isArray(storedAuditLogs) ? storedAuditLogs : initialAuditLogs,
   auditCategoryFilter: 'ALL',
 
-  // Modales: 'company' | 'bulk-users' | null
+  // Modales centrados: 'company' | 'bulk-users' | 'add-user' | 'add-branch' | null
   activeModal: null,
   editingCompanyId: null,
   bulkUsersText: '',
+  modalError: '',
 
   // Notificación / Feedback
   feedback: null,
@@ -1180,7 +1181,7 @@ function renderSelectedCompanyWorkspace(company) {
           data-action="toggle-add-user-drawer"
         >
           ${icon('userPlus', 14)}
-          <span>${state.showAddUserForm ? 'Ocultar formulario' : 'Agregar usuario'}</span>
+          <span>Agregar usuario</span>
         </button>
       </div>
     </div>
@@ -1208,101 +1209,6 @@ function renderCompanyUsersSubView(company, users, branches) {
     return matchesSearch && matchesRole && matchesBranch;
   });
 
-  const addUserDrawerHtml = state.showAddUserForm
-    ? `<form class="user-provision-drawer" id="add-company-user-form" data-company-id="${escapeHtml(company.id)}">
-        <div class="user-provision-head">
-          <div>
-            <strong>Dar de alta nuevo operador en ${escapeHtml(company.name)}</strong>
-            <small>
-              ${
-                company.ssoPolicy?.restrictToCorporateDomain
-                  ? `Política activa: solo se admiten correos corporativos @${escapeHtml(company.domain)}`
-                  : `Admite cuentas corporativas @${escapeHtml(company.domain)} o cuentas Google externas (@gmail.com)`
-              }
-            </small>
-          </div>
-          <span class="badge badge-info badge-no-dot">Aprovisionamiento inmediato</span>
-        </div>
-
-        <div class="form-grid-4">
-          <div class="field">
-            <label for="new-user-name">Nombre y Apellido *</label>
-            <input
-              id="new-user-name"
-              class="input"
-              type="text"
-              name="name"
-              placeholder="Ej. Valentina Gómez"
-              required
-            />
-          </div>
-
-          <div class="field">
-            <label for="new-user-email">Correo Google / Corporativo *</label>
-            <input
-              id="new-user-email"
-              class="input"
-              type="email"
-              name="email"
-              placeholder="vgomez@${escapeHtml(company.domain)}"
-              required
-            />
-          </div>
-
-          <div class="field">
-            <label for="new-user-role">Rol operativo</label>
-            <select id="new-user-role" class="select" name="role">
-              ${AVAILABLE_ROLES.map(
-                (role) => `<option value="${escapeHtml(role)}">${escapeHtml(role)}</option>`
-              ).join('')}
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="new-user-branch">Sede asignada</label>
-            <select id="new-user-branch" class="select" name="branch">
-              ${branches
-                .map((b) => `<option value="${escapeHtml(b)}">${escapeHtml(b)}</option>`)
-                .join('')}
-            </select>
-          </div>
-        </div>
-
-        <div class="sso-toggle-banner">
-          <div class="sso-toggle-info">
-            ${icon('googleLogo', 18)}
-            <div>
-              <strong>Vincular con Google Workspace SSO (OAuth 2.0)</strong>
-              <span>Habilita el acceso directo con un clic desde el selector de cuentas de Google en el login.</span>
-            </div>
-          </div>
-          <label class="checkbox-inline">
-            <input
-              type="checkbox"
-              name="googleLinked"
-              checked
-              ${company.ssoPolicy?.enforceGoogleSso ? 'disabled' : ''}
-            />
-            <span>${company.ssoPolicy?.enforceGoogleSso ? 'Obligatorio por política de empresa' : 'Cuenta Google vinculada'}</span>
-          </label>
-        </div>
-
-        <div style="display: flex; justify-content: flex-end; gap: 8px;">
-          <button
-            type="button"
-            class="btn btn-secondary btn-sm"
-            data-action="toggle-add-user-drawer"
-          >
-            Cancelar
-          </button>
-          <button type="submit" class="btn btn-primary btn-sm">
-            ${icon('check', 14)}
-            <span>Habilitar usuario en ${escapeHtml(company.name)}</span>
-          </button>
-        </div>
-      </form>`
-    : '';
-
   return `<section class="panel">
     <div class="panel-header">
       <div>
@@ -1323,8 +1229,6 @@ function renderCompanyUsersSubView(company, users, branches) {
           : ''
       }
     </div>
-
-    ${addUserDrawerHtml}
 
     <div class="toolbar">
       <div class="toolbar-left">
@@ -1514,24 +1418,14 @@ function renderCompanyBranchesSubView(company, users, branches) {
         </div>
       </div>
 
-      <form
-        id="add-branch-form"
-        data-company-id="${escapeHtml(company.id)}"
-        style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;"
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        data-action="open-add-branch-modal"
       >
-        <input
-          type="text"
-          name="branchName"
-          class="input"
-          style="width: 230px; min-height: 34px;"
-          placeholder="Nueva sede (ej. Depósito Oeste)"
-          required
-        />
-        <button type="submit" class="btn btn-primary btn-sm">
-          ${icon('plus', 14)}
-          <span>Agregar sede</span>
-        </button>
-      </form>
+        ${icon('plus', 14)}
+        <span>Agregar sede</span>
+      </button>
     </div>
 
     <div class="panel-body">
@@ -2157,6 +2051,10 @@ function renderAuditLogTab() {
    7. MODALES: CREAR/EDITAR EMPRESA Y ALTA MASIVA DE USUARIOS POR LOTE
    ========================================================================== */
 function renderActiveModal() {
+  const modalErrorHtml = state.modalError
+    ? `<div class="admin-modal-error" role="alert">${icon('triangleAlert', 15)}<span>${escapeHtml(state.modalError)}</span></div>`
+    : '';
+
   if (state.activeModal === 'company') {
     const editingCompany = state.editingCompanyId
       ? state.companies.find((c) => c.id === state.editingCompanyId)
@@ -2176,6 +2074,7 @@ function renderActiveModal() {
 
         <form id="modal-company-form">
           <div class="admin-modal-body">
+            ${modalErrorHtml}
             <div class="form-grid">
               <div class="field">
                 <label>Razón Social / Nombre *</label>
@@ -2357,6 +2256,159 @@ function renderActiveModal() {
             <button type="submit" class="btn btn-primary">
               ${icon('upload', 15)}
               <span>Procesar e incorporar usuarios</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>`;
+  }
+
+  if (state.activeModal === 'add-user') {
+    const company = getSelectedCompany();
+    if (!company) return '';
+    const branches =
+      Array.isArray(company.branches) && company.branches.length > 0
+        ? company.branches
+        : ['Casa Central'];
+
+    return `<div class="admin-modal-backdrop" data-action="close-modal-backdrop">
+      <div class="admin-modal-card" role="dialog" aria-modal="true" aria-label="Dar de alta nuevo operador">
+        <div class="admin-modal-header">
+          <div>
+            <div class="panel-title">Dar de alta nuevo operador en ${escapeHtml(company.name)}</div>
+            <div class="panel-subtitle">
+              ${
+                company.ssoPolicy?.restrictToCorporateDomain
+                  ? `Política activa: solo se admiten correos corporativos @${escapeHtml(company.domain)}`
+                  : `Admite cuentas corporativas @${escapeHtml(company.domain)} o cuentas Google externas (@gmail.com)`
+              }
+            </div>
+          </div>
+          <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar modal">
+            ${icon('x', 16)}
+          </button>
+        </div>
+
+        <form id="add-company-user-form" data-company-id="${escapeHtml(company.id)}">
+          <div class="admin-modal-body">
+            ${modalErrorHtml}
+            <div class="form-grid">
+              <div class="field">
+                <label for="new-user-name">Nombre y Apellido *</label>
+                <input
+                  id="new-user-name"
+                  class="input"
+                  type="text"
+                  name="name"
+                  placeholder="Ej. Valentina Gómez"
+                  required
+                />
+              </div>
+
+              <div class="field">
+                <label for="new-user-email">Correo Google / Corporativo *</label>
+                <input
+                  id="new-user-email"
+                  class="input"
+                  type="email"
+                  name="email"
+                  placeholder="vgomez@${escapeHtml(company.domain)}"
+                  required
+                />
+              </div>
+
+              <div class="field">
+                <label for="new-user-role">Rol operativo</label>
+                <select id="new-user-role" class="select" name="role">
+                  ${AVAILABLE_ROLES.map(
+                    (role) => `<option value="${escapeHtml(role)}">${escapeHtml(role)}</option>`
+                  ).join('')}
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="new-user-branch">Sede asignada</label>
+                <select id="new-user-branch" class="select" name="branch">
+                  ${branches
+                    .map((b) => `<option value="${escapeHtml(b)}">${escapeHtml(b)}</option>`)
+                    .join('')}
+                </select>
+              </div>
+            </div>
+
+            <div class="sso-toggle-banner">
+              <div class="sso-toggle-info">
+                ${icon('googleLogo', 18)}
+                <div>
+                  <strong>Vincular con Google Workspace SSO (OAuth 2.0)</strong>
+                  <span>Habilita el acceso directo con un clic desde el selector de cuentas de Google en el login.</span>
+                </div>
+              </div>
+              <label class="checkbox-inline">
+                <input
+                  type="checkbox"
+                  name="googleLinked"
+                  checked
+                  ${company.ssoPolicy?.enforceGoogleSso ? 'disabled' : ''}
+                />
+                <span>${company.ssoPolicy?.enforceGoogleSso ? 'Obligatorio por política de empresa' : 'Cuenta Google vinculada'}</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="admin-modal-footer">
+            <button type="button" class="btn btn-secondary" data-action="close-modal">
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">
+              ${icon('check', 15)}
+              <span>Habilitar usuario en ${escapeHtml(company.name)}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>`;
+  }
+
+  if (state.activeModal === 'add-branch') {
+    const company = getSelectedCompany();
+    if (!company) return '';
+
+    return `<div class="admin-modal-backdrop" data-action="close-modal-backdrop">
+      <div class="admin-modal-card admin-modal-sm" role="dialog" aria-modal="true" aria-label="Agregar nueva sede">
+        <div class="admin-modal-header">
+          <div>
+            <div class="panel-title">Agregar nueva sede — ${escapeHtml(company.name)}</div>
+            <div class="panel-subtitle">Habilitá una nueva planta, depósito o sucursal operativa</div>
+          </div>
+          <button type="button" class="icon-btn" data-action="close-modal" aria-label="Cerrar modal">
+            ${icon('x', 16)}
+          </button>
+        </div>
+
+        <form id="add-branch-form" data-company-id="${escapeHtml(company.id)}">
+          <div class="admin-modal-body">
+            ${modalErrorHtml}
+            <div class="field">
+              <label for="new-branch-name">Nombre de la sede / sucursal *</label>
+              <input
+                id="new-branch-name"
+                type="text"
+                name="branchName"
+                class="input"
+                placeholder="Ej. Depósito Oeste"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="admin-modal-footer">
+            <button type="button" class="btn btn-secondary" data-action="close-modal">
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">
+              ${icon('plus', 15)}
+              <span>Habilitar sede</span>
             </button>
           </div>
         </form>
@@ -2658,8 +2710,17 @@ function handleClick(event) {
   }
 
   if (action === 'toggle-add-user-drawer') {
-    state.showAddUserForm = !state.showAddUserForm;
     state.companySubTab = 'users';
+    state.activeModal = 'add-user';
+    state.modalError = '';
+    render();
+    return;
+  }
+
+  if (action === 'open-add-branch-modal') {
+    state.companySubTab = 'branches';
+    state.activeModal = 'add-branch';
+    state.modalError = '';
     render();
     return;
   }
@@ -2682,6 +2743,7 @@ function handleClick(event) {
   if (action === 'open-company-modal') {
     state.editingCompanyId = null;
     state.activeModal = 'company';
+    state.modalError = '';
     render();
     return;
   }
@@ -2689,6 +2751,7 @@ function handleClick(event) {
   if (action === 'edit-company') {
     state.editingCompanyId = trigger.dataset.companyId;
     state.activeModal = 'company';
+    state.modalError = '';
     render();
     return;
   }
@@ -2696,6 +2759,7 @@ function handleClick(event) {
   if (action === 'open-bulk-users-modal') {
     state.bulkUsersText = '';
     state.activeModal = 'bulk-users';
+    state.modalError = '';
     render();
     return;
   }
@@ -2715,6 +2779,7 @@ function handleClick(event) {
   if (action === 'close-modal') {
     state.activeModal = null;
     state.editingCompanyId = null;
+    state.modalError = '';
     render();
     return;
   }
@@ -2722,6 +2787,7 @@ function handleClick(event) {
   if (action === 'close-modal-backdrop' && event.target === trigger) {
     state.activeModal = null;
     state.editingCompanyId = null;
+    state.modalError = '';
     render();
     return;
   }
@@ -3120,7 +3186,7 @@ function handleSubmit(event) {
       : formData.get('googleLinked') !== null;
 
     if (!name || !email || !email.includes('@')) {
-      setFeedback('danger', 'Completá el nombre y un correo electrónico válido.');
+      state.modalError = 'Completá el nombre y un correo electrónico válido.';
       render();
       return;
     }
@@ -3129,10 +3195,7 @@ function handleSubmit(event) {
       company.ssoPolicy?.restrictToCorporateDomain &&
       !email.endsWith(`@${company.domain.toLowerCase()}`)
     ) {
-      setFeedback(
-        'danger',
-        `La política de seguridad de ${company.name} solo admite correos con dominio @${company.domain}.`
-      );
+      state.modalError = `La política de seguridad de ${company.name} solo admite correos con dominio @${company.domain}.`;
       render();
       return;
     }
@@ -3142,7 +3205,7 @@ function handleSubmit(event) {
     }
 
     if (company.users.some((u) => u.email.toLowerCase() === email)) {
-      setFeedback('danger', `El correo ${email} ya pertenece a la nómina de ${company.name}.`);
+      state.modalError = `El correo ${email} ya pertenece a la nómina de ${company.name}.`;
       render();
       return;
     }
@@ -3161,6 +3224,8 @@ function handleSubmit(event) {
 
     company.users.unshift(newUser);
     state.showAddUserForm = false;
+    state.activeModal = null;
+    state.modalError = '';
     syncCompaniesPersistence();
     appendAuditLog({
       companyName: company.name,
@@ -3272,12 +3337,14 @@ function handleSubmit(event) {
     }
 
     if (company.branches.includes(branchName)) {
-      setFeedback('warning', `La sede "${branchName}" ya existe en ${company.name}.`);
+      state.modalError = `La sede "${branchName}" ya existe en ${company.name}.`;
       render();
       return;
     }
 
     company.branches.push(branchName);
+    state.activeModal = null;
+    state.modalError = '';
     syncCompaniesPersistence();
     appendAuditLog({
       companyName: company.name,
@@ -3312,7 +3379,11 @@ function handleSubmit(event) {
       .filter(Boolean);
 
     if (!name || !cuit || !domain) {
-      setFeedback('danger', 'Completá la Razón Social, el CUIT y el dominio corporativo.');
+      if (form.id === 'modal-company-form') {
+        state.modalError = 'Completá la Razón Social, el CUIT y el dominio corporativo.';
+      } else {
+        setFeedback('danger', 'Completá la Razón Social, el CUIT y el dominio corporativo.');
+      }
       render();
       return;
     }
@@ -3332,6 +3403,7 @@ function handleSubmit(event) {
       }
       state.activeModal = null;
       state.editingCompanyId = null;
+      state.modalError = '';
       syncCompaniesPersistence();
       appendAuditLog({
         companyName: name,
@@ -3395,6 +3467,7 @@ function handleSubmit(event) {
     state.companySubTab = 'users';
     state.activeModal = null;
     state.editingCompanyId = null;
+    state.modalError = '';
     syncCompaniesPersistence();
     appendAuditLog({
       companyName: name,
@@ -3414,6 +3487,7 @@ window.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && (state.activeModal || state.showGooglePicker)) {
     state.activeModal = null;
     state.editingCompanyId = null;
+    state.modalError = '';
     state.showGooglePicker = false;
     render();
   }
