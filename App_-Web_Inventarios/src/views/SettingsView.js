@@ -44,7 +44,7 @@ export function renderSettingsView(state) {
     },
   ];
 
-  return `<div class="page">
+  return `<div class="page settings-page">
     <div class="page-header">
       <div>
         <h1 class="page-title">Configuración del sistema</h1>
@@ -64,7 +64,7 @@ export function renderSettingsView(state) {
       </div>
     </div>
 
-    <div class="dashboard-split">
+    <div class="settings-stack">
       <section class="panel">
         <div class="panel-header">
           <div>
