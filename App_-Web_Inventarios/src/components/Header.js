@@ -3,6 +3,7 @@
  * Sedes/Sucursales y alertas críticas.
  */
 
+import { config } from '../core/config.js';
 import { escapeHtml, stockStatus } from '../core/formatters.js';
 import { icon } from '../core/icons.js';
 
@@ -29,14 +30,15 @@ export function renderHeader(state) {
 
   // Cálculo del estado visual de conexión
   const conn = apiConnection || { backendOnline: false, supabaseOnline: false, activeSource: 'local' };
+  const apiLabel = config.API_BASE_URL || 'API';
   let statusClass = 'status-local';
   let statusText = 'Modo Local';
-  let statusTitle = 'Operando con almacenamiento local. Hacé clic para reintentar conexión con API :4000 y Supabase';
+  let statusTitle = `Operando con almacenamiento local. Hacé clic para reintentar conexión con ${apiLabel} y Supabase`;
 
   if (conn.backendOnline) {
     statusClass = 'status-backend';
-    statusText = `API :4000 · ${conn.backendLatency || 12}ms`;
-    statusTitle = `Conectado al Backend Local en http://localhost:4000 (${conn.backendLatency}ms)`;
+    statusText = `API · ${conn.backendLatency || 12}ms`;
+    statusTitle = `Conectado al Backend en ${apiLabel} (${conn.backendLatency}ms)`;
   } else if (conn.supabaseOnline) {
     statusClass = 'status-supabase';
     statusText = `Supabase Cloud · ${conn.supabaseLatency || 45}ms`;

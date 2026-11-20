@@ -1,6 +1,7 @@
 /**
- * @fileoverview Cliente HTTP de Alta Eficiencia para la API REST (http://localhost:4000).
- * Maneja serialización application/json, timeouts, inyección de tokens y errores de red.
+ * @fileoverview Cliente HTTP de Alta Eficiencia para la API REST (config.API_BASE_URL).
+ * Maneja serialización application/json, timeouts, inyección de tokens, protección contra
+ * contenido mixto y normalización de errores de red.
  */
 
 import { config } from '../core/config.js';
@@ -26,9 +27,30 @@ export class ApiError extends Error {
  * @returns {Promise<any>}
  */
 async function request(endpoint, options = {}) {
-  const url = endpoint.startsWith('http')
+  const isAbsoluteUrl = /^https?:\/\//i.test(endpoint);
+  if (!isAbsoluteUrl && !config.API_BASE_URL) {
+    throw new ApiError(
+      'VITE_API_BASE_URL no configurada (en producción HTTPS debe apuntar a la URL pública https:// del backend).',
+      0
+    );
+  }
+
+  const url = isAbsoluteUrl
     ? endpoint
     : `${config.API_BASE_URL}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+
+  if (
+    typeof window !== 'undefined' &&
+    window.location?.protocol === 'https:' &&
+    /^http:\/\//i.test(url)
+  ) {
+    const mixedError = new ApiError(
+      `Contenido mixto bloqueado: no se puede llamar a ${url} desde ${window.location.origin}.`,
+      0
+    );
+    console.error('[API]', mixedError.message);
+    throw mixedError;
+  }
 
   const timeoutMs = options.timeout || config.TIMEOUT_MS;
   const controller = new AbortController();
@@ -163,15 +185,26 @@ export const apiClient = {
   },
 
   /**
-   * Comprueba si el servidor local en http://localhost:4000 está activo.
+   * Comprueba si la API configurada en config.API_BASE_URL está activa.
    * @returns {Promise<{ online: boolean, latency: number, error?: string }>}
    */
   async checkHealth() {
+    if (!config.API_BASE_URL) {
+      const reason =
+        'VITE_API_BASE_URL no configurada para este entorno HTTPS (no se usa http://localhost:4000 en producción).';
+      console.error('[API] checkHealth omitido:', reason);
+      return {
+        online: false,
+        latency: 0,
+        error: reason,
+      };
+    }
+
     const start = performance.now();
     try {
-      // Intentar rutas estándar de salud o ping
-      await request('/api/health', { method: 'GET', timeout: 2500 }).catch(() =>
-        request('/health', { method: 'GET', timeout: 2500 }).catch(() =>
+      // Priorizar /health (ruta real del backend Express), con fallback a /api/health y /
+      await request('/health', { method: 'GET', timeout: 3500 }).catch(() =>
+        request('/api/health', { method: 'GET', timeout: 2500 }).catch(() =>
           request('/', { method: 'GET', timeout: 2500 })
         )
       );
@@ -180,6 +213,7 @@ export const apiClient = {
         latency: Math.round(performance.now() - start),
       };
     } catch (err) {
+      console.error(`[API] Error al verificar conexión con ${config.API_BASE_URL}:`, err);
       return {
         online: false,
         latency: Math.round(performance.now() - start),

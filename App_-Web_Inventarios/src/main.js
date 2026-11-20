@@ -7,6 +7,7 @@
 import { renderActiveDrawer } from './components/DrawerManager.js';
 import { renderHeader } from './components/Header.js';
 import { renderSidebar } from './components/Sidebar.js';
+import { config } from './core/config.js';
 import { parseBulkFile } from './core/formatters.js';
 import { icon } from './core/icons.js';
 import { initRouter, navigate, navigateFromMenu } from './core/router.js';
@@ -230,7 +231,7 @@ rootEl.addEventListener('click', (event) => {
       store.showToast('Comprobando conexión con endpoints...');
       connectionManager.checkConnections().then((res) => {
         if (res.backendOnline) {
-          store.showToast(`Conectado a Backend Local http://localhost:4000 (${res.backendLatency}ms)`);
+          store.showToast(`Conectado a Backend ${config.API_BASE_URL} (${res.backendLatency}ms)`);
         } else if (res.supabaseOnline) {
           store.showToast(`Conectado a Supabase PostgreSQL Cloud (${res.supabaseLatency}ms)`);
         } else {

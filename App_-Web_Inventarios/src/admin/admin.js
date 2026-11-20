@@ -5,6 +5,7 @@
  */
 
 import { renderKpiCard } from '../components/KpiCard.js';
+import { config } from '../core/config.js';
 import { escapeHtml, formatNumber } from '../core/formatters.js';
 import { icon } from '../core/icons.js';
 import { companiesApi, connectionManager } from '../services/apiRepository.js';
@@ -677,14 +678,15 @@ function renderAdminTopbar() {
   const selectedCompany = getSelectedCompany();
 
   const conn = state.apiConnection || { backendOnline: false, supabaseOnline: false };
+  const apiLabel = config.API_BASE_URL || 'API';
   let statusClass = 'status-local';
   let statusText = 'Modo Local';
-  let statusTitle = 'Operando localmente. Clic para verificar conexión con Backend :4000 y Supabase';
+  let statusTitle = `Operando localmente. Clic para verificar conexión con ${apiLabel} y Supabase`;
 
   if (conn.backendOnline) {
     statusClass = 'status-backend';
-    statusText = `API :4000 · ${conn.backendLatency || 12}ms`;
-    statusTitle = `Conectado a http://localhost:4000 (${conn.backendLatency}ms)`;
+    statusText = `API · ${conn.backendLatency || 12}ms`;
+    statusTitle = `Conectado a ${apiLabel} (${conn.backendLatency}ms)`;
   } else if (conn.supabaseOnline) {
     statusClass = 'status-supabase';
     statusText = `Supabase Cloud · ${conn.supabaseLatency || 45}ms`;
@@ -2659,17 +2661,18 @@ function handleClick(event) {
   }
 
   if (action === 'check-endpoints') {
-    showToast('Comprobando conexión con endpoints...');
+    setFeedback('info', 'Comprobando conexión con endpoints...');
+    render();
     connectionManager.checkConnections().then((res) => {
       state.apiConnection = res;
-      render();
       if (res.backendOnline) {
-        showToast(`Conectado a Backend Local http://localhost:4000 (${res.backendLatency}ms)`);
+        setFeedback('success', `Conectado a Backend ${config.API_BASE_URL} (${res.backendLatency}ms)`);
       } else if (res.supabaseOnline) {
-        showToast(`Conectado a Supabase Cloud (${res.supabaseLatency}ms)`);
+        setFeedback('success', `Conectado a Supabase Cloud (${res.supabaseLatency}ms)`);
       } else {
-        showToast('Modo Local activo (endpoints externos offline)');
+        setFeedback('danger', 'Modo Local activo (endpoints externos offline). Revisá la consola para el detalle.');
       }
+      render();
     });
     return;
   }
