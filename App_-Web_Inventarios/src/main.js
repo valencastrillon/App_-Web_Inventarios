@@ -232,8 +232,10 @@ rootEl.addEventListener('click', (event) => {
       connectionManager.checkConnections().then((res) => {
         if (res.backendOnline) {
           store.showToast(`Conectado a Backend ${config.API_BASE_URL} (${res.backendLatency}ms)`);
+          syncInventoryWithApi();
         } else if (res.supabaseOnline) {
           store.showToast(`Conectado a Supabase PostgreSQL Cloud (${res.supabaseLatency}ms)`);
+          syncInventoryWithApi();
         } else {
           store.showToast('Endpoints remotos fuera de línea. Operando en modo local resiliente.');
         }
@@ -837,6 +839,8 @@ connectionManager.subscribe((status) => {
   store.setState({ apiConnection: status });
 });
 
-connectionManager.checkConnections().then(() => {
-  syncInventoryWithApi();
+connectionManager.checkConnections().then((status) => {
+  if (status.backendOnline || status.supabaseOnline) {
+    syncInventoryWithApi();
+  }
 });
