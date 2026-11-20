@@ -186,17 +186,16 @@ export const apiClient = {
 
   /**
    * Comprueba si la API configurada en config.API_BASE_URL está activa.
-   * @returns {Promise<{ online: boolean, latency: number, error?: string }>}
+   * @returns {Promise<{ online: boolean, latency: number, skipped?: boolean, error?: string }>}
    */
   async checkHealth() {
     if (!config.API_BASE_URL) {
-      const reason =
-        'VITE_API_BASE_URL no configurada para este entorno HTTPS (no se usa http://localhost:4000 en producción).';
-      console.error('[API] checkHealth omitido:', reason);
       return {
         online: false,
         latency: 0,
-        error: reason,
+        skipped: true,
+        error:
+          'VITE_API_BASE_URL no configurada para este entorno HTTPS (no se usa http://localhost:4000 en producción).',
       };
     }
 

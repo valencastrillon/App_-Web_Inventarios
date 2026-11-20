@@ -1,0 +1,4 @@
+[build]
+  base = "App_-Web_Inventarios"
+  command = "node scripts/generate-env.mjs"
+  publish = "."
