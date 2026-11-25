@@ -1,53 +1,36 @@
-# Logic Control — App Web de Inventarios
+<div align="center">
 
-Logic Control es una aplicación estática de gestión de inventarios construida con HTML5, CSS3 y JavaScript nativo en módulos ES. No requiere Node, npm, Vite ni un proceso de compilación.
+# Logic Control
 
-## Ejecutar
+**Plataforma de gestión inteligente de inventarios multi-sede y consola administrativa.**  
+Administra sedes, catálogo, movimientos, roles y accesos desde un solo lugar.
 
-Como el navegador restringe los módulos ES al abrirlos con `file://`, usá cualquier servidor estático. Por ejemplo:
+[Demo en vivo](https://logixcontrol.netlify.app/) · [Repositorio](https://github.com/valencastrillon/App_-Web_Inventarios) · [Reportar un issue](https://github.com/valencastrillon/App_-Web_Inventarios/issues)
 
-```bash
-python3 -m http.server 8000
-```
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)
+![Netlify](https://img.shields.io/badge/Netlify-Deployed-00C7B7?style=flat&logo=netlify&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-blue?style=flat)
 
-Luego abrí `http://localhost:8000/`.
+</div>
 
-`index.html` carga directamente `/src/styles/main.css` y `/src/main.js`; todos los imports de `src/` son relativos y no dependen de paquetes externos.
+---
 
-## Cambios de esta versión
+## ¿Qué es Logic Control?
 
-- Se eliminó el buscador global del header, el ícono de lupa y el atajo `⌘K`/`Ctrl+K`.
-- Se mantuvo el buscador de la tabla de Productos: “Filtrar por nombre, SKU o pasillo…”.
-- Se eliminó el botón “Menú” y el estado manual de expansión del sidebar.
-- El sidebar reserva un riel fijo de 72 px cuando está colapsado, muestra íconos centrados en áreas clicables de 40×40 px y se expande suavemente hasta 260 px por hover/foco como superposición, sin desplazar el contenido.
-- Se conservaron el cambio claro/oscuro, los badges y el avatar/logout.
-- Se eliminó la pantalla, ruta, navegación, drawer y servicios exclusivos de Proveedores.
-- La conversión de kits/cajas continúa funcionando. El contador de kits representa productos cuyo SKU comienza con `KIT-`; no es una pantalla ni un vínculo con un módulo de Proveedores.
-- Se eliminaron Node, npm, Vite y los artefactos de build. La aplicación no compila ni ejecuta un bundle: se sirve como archivos estáticos.
+**Logic Control** es una plataforma web modular diseñada para centralizar la operación de inventarios y el gobierno multi-empresa:
 
-## Estructura
+1. **Gestión de Inventario y Sedes:** Control de existencias, movimientos, ajustes y operación por sucursal o depósito.
+2. **Consola Administrativa Multi-Empresa:** Administración de organizaciones, usuarios, roles, auditoría y políticas de acceso/SSO.
+3. **Arquitectura Modular:** Separación clara entre interfaz/frontend y servicios de backend.
 
-```text
-index.html
-public/
-src/
-  components/   UI reutilizable y drawers
-  core/         store, router, iconos y formateadores
-  data/         datos iniciales de demostración
-  services/     reglas de inventario y autenticación
-  views/        pantallas de la aplicación
-  styles/       hojas CSS modulares
-docs/           documentación técnica, guía y capturas
-```
+## Estructura del proyecto
 
-## Verificación
+- `App_-Web_Inventarios/` — Aplicación web (vistas, estilos, lógica modular y consola administrativa).
+- `backend/` — Servicios y lógica de servidor.
+- `LICENSE` — Licencia MIT del proyecto.
 
-La verificación recomendada es:
+## Licencia
 
-```bash
-python3 -m http.server 8000
-```
-
-Abrí la consola del navegador y comprobá el login, la navegación, el filtro de Productos, el cambio de tema, la expansión por hover del sidebar y la conversión de kits. No deben aparecer errores de módulos ni referencias a npm/Vite/Node.
-
-La documentación integral del proyecto (arquitectura, última actualización de UI, configuración de `.env`, cliente HTTP y rutas pendientes) está centralizada en [`docs/DOCUMENTACION_LOGIC_CONTROL.md`](docs/DOCUMENTACION_LOGIC_CONTROL.md). Las capturas comparativas están en `docs/screenshots/sidebar-before-1280.png` y `docs/screenshots/sidebar-after-1280.png`.
+Este proyecto se distribuye bajo la licencia **MIT**. Consulta el archivo [LICENSE](./LICENSE) para más detalles.
