@@ -27,8 +27,8 @@ Administra sedes, catálogo, movimientos, roles y accesos desde un solo lugar.
 
 ## Estructura del proyecto
 
-- `App_-Web_Inventarios/` — Aplicación web (vistas, estilos, lógica modular y consola administrativa).
-- `backend/` — Servicios y lógica de servidor.
+- `web/` — Frontend, Aplicación web (vistas, estilos, lógica modular y consola administrativa).
+- `server/` — Servicios y lógica de servidor.
 - `LICENSE` — Licencia MIT del proyecto.
 
 ## Licencia
