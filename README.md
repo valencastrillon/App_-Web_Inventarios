@@ -1,6 +1,6 @@
 <div align="center">
 
-# Logic Control
+# Logix Control
 
 **Plataforma de gestión inteligente de inventarios multi-sede y consola administrativa.**  
 Administra sedes, catálogo, movimientos, roles y accesos desde un solo lugar.
@@ -17,9 +17,9 @@ Administra sedes, catálogo, movimientos, roles y accesos desde un solo lugar.
 
 ---
 
-## ¿Qué es Logic Control?
+## ¿Qué es Logix Control?
 
-**Logic Control** es una plataforma web modular diseñada para centralizar la operación de inventarios y el gobierno multi-empresa:
+**Logix Control** es una plataforma web modular diseñada para centralizar la operación de inventarios y el gobierno multi-empresa:
 
 1. **Gestión de Inventario y Sedes:** Control de existencias, movimientos, ajustes y operación por sucursal o depósito.
 2. **Consola Administrativa Multi-Empresa:** Administración de organizaciones, usuarios, roles, auditoría y políticas de acceso/SSO.
