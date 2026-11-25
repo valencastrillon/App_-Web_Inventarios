@@ -93,9 +93,9 @@ class ConnectionManager {
           supabaseError,
         }
       );
-    } else if (!isBackend) {
+    } else if (!isBackend && config.API_BASE_URL) {
       console.warn('[ConnectionManager] API no disponible; operando con Supabase Cloud:', {
-        apiBaseUrl: config.API_BASE_URL || '(no configurada)',
+        apiBaseUrl: config.API_BASE_URL,
         backendError,
       });
     }
@@ -127,18 +127,20 @@ export const productsApi = {
    * @returns {Promise<{ success: boolean, data: any[], source: DataSource, error?: string }>}
    */
   async getAll() {
-    // 1. Probar backend REST
-    try {
-      const res = await apiClient.get('/api/products');
-      if (res && (Array.isArray(res) || Array.isArray(res.data))) {
-        return {
-          success: true,
-          data: Array.isArray(res) ? res : res.data,
-          source: 'backend',
-        };
+    // 1. Probar backend REST (solo si VITE_API_BASE_URL está configurada)
+    if (config.API_BASE_URL) {
+      try {
+        const res = await apiClient.get('/api/products');
+        if (res && (Array.isArray(res) || Array.isArray(res.data))) {
+          return {
+            success: true,
+            data: Array.isArray(res) ? res : res.data,
+            source: 'backend',
+          };
+        }
+      } catch (err) {
+        console.error('[productsApi.getAll] Error consultando API:', err);
       }
-    } catch (err) {
-      console.error('[productsApi.getAll] Error consultando API:', err);
     }
 
     // 2. Probar Supabase
@@ -161,24 +163,28 @@ export const productsApi = {
    * @param {object} product
    */
   async create(product) {
-    // 1. Intentar backend
-    try {
-      const res = await apiClient.post('/api/products', product);
-      return { success: true, data: res, source: 'backend' };
-    } catch (apiErr) {
-      console.error('[productsApi.create] Error en API:', apiErr);
-      // 2. Intentar Supabase
+    // 1. Intentar backend (solo si está configurado)
+    if (config.API_BASE_URL) {
       try {
-        const { data, error } = await supabase.from('products').insert(product);
-        if (error) {
-          console.error('[productsApi.create] Error en Supabase:', error);
-        } else if (data) {
-          return { success: true, data, source: 'supabase' };
-        }
-      } catch (supaErr) {
-        console.error('[productsApi.create] Excepción en Supabase:', supaErr);
+        const res = await apiClient.post('/api/products', product);
+        return { success: true, data: res, source: 'backend' };
+      } catch (apiErr) {
+        console.error('[productsApi.create] Error en API:', apiErr);
       }
     }
+
+    // 2. Intentar Supabase
+    try {
+      const { data, error } = await supabase.from('products').insert(product);
+      if (error) {
+        console.error('[productsApi.create] Error en Supabase:', error);
+      } else if (data) {
+        return { success: true, data, source: 'supabase' };
+      }
+    } catch (supaErr) {
+      console.error('[productsApi.create] Excepción en Supabase:', supaErr);
+    }
+
     return { success: true, data: product, source: 'local' };
   },
 
@@ -188,22 +194,26 @@ export const productsApi = {
    * @param {object} updates
    */
   async update(id, updates) {
-    try {
-      const res = await apiClient.put(`/api/products/${encodeURIComponent(id)}`, updates);
-      return { success: true, data: res, source: 'backend' };
-    } catch (apiErr) {
-      console.error('[productsApi.update] Error en API:', apiErr);
+    if (config.API_BASE_URL) {
       try {
-        const { data, error } = await supabase.from('products').update(updates).eq('id', id);
-        if (error) {
-          console.error('[productsApi.update] Error en Supabase:', error);
-        } else {
-          return { success: true, data, source: 'supabase' };
-        }
-      } catch (supaErr) {
-        console.error('[productsApi.update] Excepción en Supabase:', supaErr);
+        const res = await apiClient.put(`/api/products/${encodeURIComponent(id)}`, updates);
+        return { success: true, data: res, source: 'backend' };
+      } catch (apiErr) {
+        console.error('[productsApi.update] Error en API:', apiErr);
       }
     }
+
+    try {
+      const { data, error } = await supabase.from('products').update(updates).eq('id', id);
+      if (error) {
+        console.error('[productsApi.update] Error en Supabase:', error);
+      } else {
+        return { success: true, data, source: 'supabase' };
+      }
+    } catch (supaErr) {
+      console.error('[productsApi.update] Excepción en Supabase:', supaErr);
+    }
+
     return { success: true, data: { id, ...updates }, source: 'local' };
   },
 
@@ -212,22 +222,26 @@ export const productsApi = {
    * @param {string} id
    */
   async delete(id) {
-    try {
-      await apiClient.delete(`/api/products/${encodeURIComponent(id)}`);
-      return { success: true, source: 'backend' };
-    } catch (apiErr) {
-      console.error('[productsApi.delete] Error en API:', apiErr);
+    if (config.API_BASE_URL) {
       try {
-        const { error } = await supabase.from('products').delete().eq('id', id);
-        if (error) {
-          console.error('[productsApi.delete] Error en Supabase:', error);
-        } else {
-          return { success: true, source: 'supabase' };
-        }
-      } catch (supaErr) {
-        console.error('[productsApi.delete] Excepción en Supabase:', supaErr);
+        await apiClient.delete(`/api/products/${encodeURIComponent(id)}`);
+        return { success: true, source: 'backend' };
+      } catch (apiErr) {
+        console.error('[productsApi.delete] Error en API:', apiErr);
       }
     }
+
+    try {
+      const { error } = await supabase.from('products').delete().eq('id', id);
+      if (error) {
+        console.error('[productsApi.delete] Error en Supabase:', error);
+      } else {
+        return { success: true, source: 'supabase' };
+      }
+    } catch (supaErr) {
+      console.error('[productsApi.delete] Excepción en Supabase:', supaErr);
+    }
+
     return { success: true, source: 'local' };
   },
 };
@@ -240,17 +254,19 @@ export const movementsApi = {
    * Obtiene la bitácora de movimientos
    */
   async getAll() {
-    try {
-      const res = await apiClient.get('/api/movements');
-      if (res && (Array.isArray(res) || Array.isArray(res.data))) {
-        return {
-          success: true,
-          data: Array.isArray(res) ? res : res.data,
-          source: 'backend',
-        };
+    if (config.API_BASE_URL) {
+      try {
+        const res = await apiClient.get('/api/movements');
+        if (res && (Array.isArray(res) || Array.isArray(res.data))) {
+          return {
+            success: true,
+            data: Array.isArray(res) ? res : res.data,
+            source: 'backend',
+          };
+        }
+      } catch (err) {
+        console.error('[movementsApi.getAll] Error consultando API:', err);
       }
-    } catch (err) {
-      console.error('[movementsApi.getAll] Error consultando API:', err);
     }
 
     try {
@@ -272,22 +288,26 @@ export const movementsApi = {
    * @param {object} movement
    */
   async create(movement) {
-    try {
-      const res = await apiClient.post('/api/movements', movement);
-      return { success: true, data: res, source: 'backend' };
-    } catch (apiErr) {
-      console.error('[movementsApi.create] Error en API:', apiErr);
+    if (config.API_BASE_URL) {
       try {
-        const { data, error } = await supabase.from('movements').insert(movement);
-        if (error) {
-          console.error('[movementsApi.create] Error en Supabase:', error);
-        } else if (data) {
-          return { success: true, data, source: 'supabase' };
-        }
-      } catch (supaErr) {
-        console.error('[movementsApi.create] Excepción en Supabase:', supaErr);
+        const res = await apiClient.post('/api/movements', movement);
+        return { success: true, data: res, source: 'backend' };
+      } catch (apiErr) {
+        console.error('[movementsApi.create] Error en API:', apiErr);
       }
     }
+
+    try {
+      const { data, error } = await supabase.from('movements').insert(movement);
+      if (error) {
+        console.error('[movementsApi.create] Error en Supabase:', error);
+      } else if (data) {
+        return { success: true, data, source: 'supabase' };
+      }
+    } catch (supaErr) {
+      console.error('[movementsApi.create] Excepción en Supabase:', supaErr);
+    }
+
     return { success: true, data: movement, source: 'local' };
   },
 };
@@ -297,17 +317,19 @@ export const movementsApi = {
 // ==========================================
 export const categoriesApi = {
   async getAll() {
-    try {
-      const res = await apiClient.get('/api/categories');
-      if (res && (Array.isArray(res) || Array.isArray(res.data))) {
-        return {
-          success: true,
-          data: Array.isArray(res) ? res : res.data,
-          source: 'backend',
-        };
+    if (config.API_BASE_URL) {
+      try {
+        const res = await apiClient.get('/api/categories');
+        if (res && (Array.isArray(res) || Array.isArray(res.data))) {
+          return {
+            success: true,
+            data: Array.isArray(res) ? res : res.data,
+            source: 'backend',
+          };
+        }
+      } catch (err) {
+        console.error('[categoriesApi.getAll] Error consultando API:', err);
       }
-    } catch (err) {
-      console.error('[categoriesApi.getAll] Error consultando API:', err);
     }
 
     try {
@@ -325,22 +347,26 @@ export const categoriesApi = {
   },
 
   async create(category) {
-    try {
-      const res = await apiClient.post('/api/categories', category);
-      return { success: true, data: res, source: 'backend' };
-    } catch (apiErr) {
-      console.error('[categoriesApi.create] Error en API:', apiErr);
+    if (config.API_BASE_URL) {
       try {
-        const { data, error } = await supabase.from('categories').insert(category);
-        if (error) {
-          console.error('[categoriesApi.create] Error en Supabase:', error);
-        } else if (data) {
-          return { success: true, data, source: 'supabase' };
-        }
-      } catch (supaErr) {
-        console.error('[categoriesApi.create] Excepción en Supabase:', supaErr);
+        const res = await apiClient.post('/api/categories', category);
+        return { success: true, data: res, source: 'backend' };
+      } catch (apiErr) {
+        console.error('[categoriesApi.create] Error en API:', apiErr);
       }
     }
+
+    try {
+      const { data, error } = await supabase.from('categories').insert(category);
+      if (error) {
+        console.error('[categoriesApi.create] Error en Supabase:', error);
+      } else if (data) {
+        return { success: true, data, source: 'supabase' };
+      }
+    } catch (supaErr) {
+      console.error('[categoriesApi.create] Excepción en Supabase:', supaErr);
+    }
+
     return { success: true, data: category, source: 'local' };
   },
 };
@@ -350,17 +376,19 @@ export const categoriesApi = {
 // ==========================================
 export const companiesApi = {
   async getAll() {
-    try {
-      const res = await apiClient.get('/api/companies');
-      if (res && (Array.isArray(res) || Array.isArray(res.data))) {
-        return {
-          success: true,
-          data: Array.isArray(res) ? res : res.data,
-          source: 'backend',
-        };
+    if (config.API_BASE_URL) {
+      try {
+        const res = await apiClient.get('/api/companies');
+        if (res && (Array.isArray(res) || Array.isArray(res.data))) {
+          return {
+            success: true,
+            data: Array.isArray(res) ? res : res.data,
+            source: 'backend',
+          };
+        }
+      } catch (err) {
+        console.error('[companiesApi.getAll] Error consultando API:', err);
       }
-    } catch (err) {
-      console.error('[companiesApi.getAll] Error consultando API:', err);
     }
 
     try {
@@ -378,42 +406,50 @@ export const companiesApi = {
   },
 
   async save(company) {
-    try {
-      const res = await apiClient.post('/api/companies', company);
-      return { success: true, data: res, source: 'backend' };
-    } catch (apiErr) {
-      console.error('[companiesApi.save] Error en API:', apiErr);
+    if (config.API_BASE_URL) {
       try {
-        const { data, error } = await supabase.from('companies').insert(company);
-        if (error) {
-          console.error('[companiesApi.save] Error en Supabase:', error);
-        } else {
-          return { success: true, data, source: 'supabase' };
-        }
-      } catch (supaErr) {
-        console.error('[companiesApi.save] Excepción en Supabase:', supaErr);
+        const res = await apiClient.post('/api/companies', company);
+        return { success: true, data: res, source: 'backend' };
+      } catch (apiErr) {
+        console.error('[companiesApi.save] Error en API:', apiErr);
       }
     }
+
+    try {
+      const { data, error } = await supabase.from('companies').insert(company);
+      if (error) {
+        console.error('[companiesApi.save] Error en Supabase:', error);
+      } else {
+        return { success: true, data, source: 'supabase' };
+      }
+    } catch (supaErr) {
+      console.error('[companiesApi.save] Excepción en Supabase:', supaErr);
+    }
+
     return { success: true, data: company, source: 'local' };
   },
 
   async update(id, updates) {
-    try {
-      const res = await apiClient.put(`/api/companies/${encodeURIComponent(id)}`, updates);
-      return { success: true, data: res, source: 'backend' };
-    } catch (apiErr) {
-      console.error('[companiesApi.update] Error en API:', apiErr);
+    if (config.API_BASE_URL) {
       try {
-        const { data, error } = await supabase.from('companies').update(updates).eq('id', id);
-        if (error) {
-          console.error('[companiesApi.update] Error en Supabase:', error);
-        } else {
-          return { success: true, data, source: 'supabase' };
-        }
-      } catch (supaErr) {
-        console.error('[companiesApi.update] Excepción en Supabase:', supaErr);
+        const res = await apiClient.put(`/api/companies/${encodeURIComponent(id)}`, updates);
+        return { success: true, data: res, source: 'backend' };
+      } catch (apiErr) {
+        console.error('[companiesApi.update] Error en API:', apiErr);
       }
     }
+
+    try {
+      const { data, error } = await supabase.from('companies').update(updates).eq('id', id);
+      if (error) {
+        console.error('[companiesApi.update] Error en Supabase:', error);
+      } else {
+        return { success: true, data, source: 'supabase' };
+      }
+    } catch (supaErr) {
+      console.error('[companiesApi.update] Excepción en Supabase:', supaErr);
+    }
+
     return { success: true, data: { id, ...updates }, source: 'local' };
   },
 };
@@ -427,18 +463,20 @@ export const authApi = {
    * @param {{ email: string, password: string }} credentials
    */
   async login(credentials) {
-    // 1. Intentar API
-    try {
-      const res = await apiClient.post('/api/auth/login', credentials);
-      if (res && res.token) {
-        window.sessionStorage.setItem(config.STORAGE_KEYS.AUTH_TOKEN, res.token);
-        if (res.user) {
-          window.sessionStorage.setItem(config.STORAGE_KEYS.USER_DATA, JSON.stringify(res.user));
+    // 1. Intentar API (solo si está configurada)
+    if (config.API_BASE_URL) {
+      try {
+        const res = await apiClient.post('/api/auth/login', credentials);
+        if (res && res.token) {
+          window.sessionStorage.setItem(config.STORAGE_KEYS.AUTH_TOKEN, res.token);
+          if (res.user) {
+            window.sessionStorage.setItem(config.STORAGE_KEYS.USER_DATA, JSON.stringify(res.user));
+          }
+          return { success: true, user: res.user, token: res.token, source: 'backend' };
         }
-        return { success: true, user: res.user, token: res.token, source: 'backend' };
+      } catch (apiErr) {
+        console.error('[authApi.login] Error en API:', apiErr);
       }
-    } catch (apiErr) {
-      console.error('[authApi.login] Error en API:', apiErr);
     }
 
     // 2. Intentar Supabase Auth
@@ -466,7 +504,9 @@ export const authApi = {
    */
   async logout() {
     try {
-      await apiClient.post('/api/auth/logout').catch(() => {});
+      if (config.API_BASE_URL) {
+        await apiClient.post('/api/auth/logout').catch(() => {});
+      }
       await supabase.auth.signOut().catch(() => {});
     } finally {
       window.sessionStorage.removeItem(config.STORAGE_KEYS.AUTH_TOKEN);

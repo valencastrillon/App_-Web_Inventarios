@@ -10,10 +10,10 @@
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-const PUBLIC_KEYS = [
-  'VITE_API_BASE_URL',
-  'VITE_SUPABASE_URL',
-  'VITE_SUPABASE_ANON_KEY',
+const PUBLIC_KEY_SOURCES = [
+  { target: 'VITE_API_BASE_URL', candidates: ['VITE_API_BASE_URL', 'API_BASE_URL'] },
+  { target: 'VITE_SUPABASE_URL', candidates: ['VITE_SUPABASE_URL', 'SUPABASE_URL'] },
+  { target: 'VITE_SUPABASE_ANON_KEY', candidates: ['VITE_SUPABASE_ANON_KEY', 'SUPABASE_ANON_KEY'] },
 ];
 
 function isForbiddenSecretKey(value) {
@@ -36,22 +36,29 @@ function isForbiddenSecretKey(value) {
 
 const publicConfig = {};
 
-for (const key of PUBLIC_KEYS) {
-  const raw = process.env[key];
-  if (typeof raw !== 'string') continue;
+for (const { target, candidates } of PUBLIC_KEY_SOURCES) {
+  let resolvedValue = '';
+  for (const candidate of candidates) {
+    const raw = process.env[candidate];
+    if (typeof raw === 'string' && raw.trim()) {
+      resolvedValue = raw.trim();
+      break;
+    }
+  }
 
-  const value = raw.trim();
-  if (!value) continue;
+  if (!resolvedValue) continue;
 
-  if (key === 'VITE_SUPABASE_ANON_KEY' && isForbiddenSecretKey(value)) {
+  if (target === 'VITE_SUPABASE_ANON_KEY' && isForbiddenSecretKey(resolvedValue)) {
     console.error(
-      `[generate-env] ERROR DE SEGURIDAD: ${key} contiene una clave service_role/sb_secret_. ` +
+      `[generate-env] ERROR DE SEGURIDAD: ${target} contiene una clave service_role/sb_secret_. ` +
         'Nunca expongas claves privadas en el frontend.'
     );
     process.exit(1);
   }
 
-  publicConfig[key] = key.endsWith('_URL') ? value.replace(/\/+$/, '') : value;
+  publicConfig[target] = target.endsWith('_URL')
+    ? resolvedValue.replace(/\/+$/, '')
+    : resolvedValue;
 }
 
 const targetPath = fileURLToPath(new URL('../env-config.js', import.meta.url));
@@ -65,6 +72,10 @@ const fileContent = [
 writeFileSync(targetPath, fileContent, 'utf8');
 
 console.log(
-  '[generate-env] env-config.js generado con claves:',
-  Object.keys(publicConfig).length > 0 ? Object.keys(publicConfig).join(', ') : '(ninguna variable VITE_* definida)'
+  '[generate-env] env-config.js generado:',
+  JSON.stringify({
+    VITE_API_BASE_URL: publicConfig.VITE_API_BASE_URL || '(no definida)',
+    VITE_SUPABASE_URL: publicConfig.VITE_SUPABASE_URL || '(no definida)',
+    VITE_SUPABASE_ANON_KEY: publicConfig.VITE_SUPABASE_ANON_KEY ? '(configurada)' : '(no definida)',
+  })
 );
